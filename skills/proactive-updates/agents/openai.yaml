@@ -1,0 +1,3 @@
+interface:
+  display_name: "Proactive Updates"
+  short_description: "Notice useful tool, container and system updates"

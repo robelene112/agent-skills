@@ -10,6 +10,7 @@ kopie van Matt Pococks volledige stabiele skillset:
 | Odoo 20-frameworkkennis | [odoo-20](skills/odoo-20/SKILL.md) | Geïnstalleerd in het Odoo BI-project |
 | Globale communicatieregels | [global-communication](skills/global-communication/SKILL.md) | Geen em dashes; vragen in de chat |
 | Tracker voor ontwikkeling | [github-issues](skills/github-issues/SKILL.md) | Nieuwe tickets en trackerspecificaties zijn GitHub Issues |
+| Actief letten op updates | [proactive-updates](skills/proactive-updates/SKILL.md) | Globale onderhoudsaandacht tijdens software- en omgevingswerk |
 | Globale instructie-ingang | [AGENTS.md](instructions/global/AGENTS.md) | Laadt de persoonlijke regels |
 | VPS-opslag | [Storage](environments/vps/STORAGE.md) | Alleen voor de VPS; `/` en `/mnt/storage` |
 | Matt Pocock | [Upstream skills](vendor/matt-pocock/skills/) | Ongewijzigde, gecontroleerde snapshot |
@@ -37,6 +38,13 @@ De VPS-opslagnotitie is uitsluitend voor die machine. Bestaande lokale tickets
 blijven bestaande administratie; de nieuwe afspraak voert geen automatische
 migratie van oude plannen uit.
 
+De globale onderhoudsregel laat agents actief letten op updates van Docker
+images, Codex en andere tools, projectafhankelijkheden en systeempakketten.
+Ze controleren relevante onderdelen gericht, hergebruiken recente bevindingen
+en melden concrete verbeteringen met hun impact. Uitvoeren volgt de bestaande
+autorisatie en de updateprocedure van het project of de omgeving. Dit legt geen
+nieuwe periodieke systeemaudit vast.
+
 Voor ophalen op een andere machine is geen GitHub-account nodig:
 
 ```bash
@@ -49,8 +57,8 @@ wordt niet in Git opgenomen.
 
 ## Regels gebruiken op een andere machine
 
-Koppel of kopieer `skills/global-communication/` en `skills/github-issues/` naar
-`~/.agents/skills/`. Plaats de inhoud van
+Koppel of kopieer `skills/global-communication/`, `skills/github-issues/` en
+`skills/proactive-updates/` naar `~/.agents/skills/`. Plaats de inhoud van
 [de globale ingang](instructions/global/AGENTS.md) in Codex' `~/.codex/AGENTS.md`
 (of de `AGENTS.md` in je eigen `CODEX_HOME`). Behoud eventuele bestaande
 persoonlijke instructies. De ingang verwijst naar dezelfde skills op iedere
@@ -61,12 +69,13 @@ zie [skills](https://learn.chatgpt.com/docs/build-skills) en
 Claude Code kan dezelfde ingang laden vanuit `~/.claude/CLAUDE.md`; zie
 [Claude-geheugen](https://code.claude.com/docs/en/memory). Andere agents moeten
 dezelfde regels vanuit hun eigen vaste instructie-ingang lezen. Start een nieuwe
-sessie om de nieuwe globale ingang te laden. Op de VPS zijn de twee persoonlijke
+sessie om de nieuwe globale ingang te laden. Op de VPS zijn de drie persoonlijke
 skills gekoppeld en ingangen ingesteld; de bestaande projectrouting blijft
 behouden.
 
 Bij links naar deze bronrepository werkt een `git pull --ff-only` de skillinhoud
 bij. Een gekopieerde skill moet na een bronupdate opnieuw gekopieerd worden.
+Neem een gewijzigde globale ingang ook over in je persoonlijke instructiebestand.
 GitHub haalt de Matt Pocock-updates automatisch op; lokale checkouts hebben nog
 geen automatische pull. De VPS-notitie hoort niet op de laptops geactiveerd te
 worden.

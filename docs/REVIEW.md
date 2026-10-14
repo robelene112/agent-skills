@@ -136,3 +136,17 @@ De twee VPS-schijven zijn gecontroleerd tegen `lsblk`, `findmnt` en `df`:
 `/dev/vda4` is `/`, en `/dev/vdb1` is `/mnt/storage`. Die machinefeiten staan
 uitsluitend in `environments/vps/STORAGE.md`, met een gerichte verwijzing vanuit
 de bestaande home-instructies.
+
+## Proactieve onderhoudsaandacht
+
+Regel 4 is een globale voorkeur om tijdens het werk actief te letten op updates
+van Docker images, tools zoals Codex, afhankelijkheden en systeempakketten.
+`proactive-updates` beschrijft gerichte, onderbouwde controles en een korte
+melding van bruikbare bevindingen. Het identificeert eerst de werkelijke versie,
+installatiemethode, releasekanaal en pins van het betreffende onderdeel.
+
+De instructie-ingang laadt de details voor software- en omgevingswerk. Recente
+bevindingen worden hergebruikt; een uitgebreider onderzoek volgt een concrete
+aanleiding of een auditverzoek. Uitvoeren volgt bestaande autorisatie en de
+project- of omgevingsprocedure. Deze herziening configureert geen periodieke
+audit en voert geen systeem- of applicatie-upgrades uit.
