@@ -44,9 +44,24 @@ bron voor de nieuwe repository.
 - Herhaalde goedkeuring na een implementatieverzoek wordt vermeden; bestaande
   autorisatie en werkelijk nieuwe externe handelingen blijven onderscheiden.
 
-Het voorstel volgt voorlopig de aanbevolen rol als korte persoonlijke ingang.
-Een zelfstandige workflow zou een andere ontwerpkeuze zijn, met meer overlap
-met Matt Pocock. Er is nog geen installatie uitgevoerd.
+### Besluit tijdens de herziening
+
+De gebruiker wil na de grill zelfstandig laten doorwerken: `to-spec`,
+`to-tickets`, implementatie, review met herstel en retro. De oude rol met
+handmatige review per increment en een eigen planningsmethodiek vervalt.
+
+De toegevoegde waarde van `dev-loop` is nu uitsluitend het koppelen en hervatten
+van deze fasen. Matt Pocock blijft de inhoudelijke bron. Zijn `to-spec` vraagt
+om bevestiging van testseams en `to-tickets` om goedkeuring van ticketverdeling;
+in deze persoonlijke workflow zijn die technische keuzes aan de agent
+gedelegeerd. De upstream bestanden blijven ongewijzigd.
+
+`implement-spec` is de route voor nuttige, toegestane parallelle uitvoering;
+anders rondt `implement` het afgesproken werk opeenvolgend af. De review die
+beide implementatieskills al aanroepen wordt hergebruikt. Een losse opdracht
+voor één fase blijft beperkt tot die fase. Nieuwe productkeuzes buiten de
+afgesproken scope gaan terug naar de gebruiker. Er is nog geen installatie
+uitgevoerd en bestaande projectworkflows zijn nog niet aangepast.
 
 ## Saito-dev
 

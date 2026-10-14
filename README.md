@@ -18,10 +18,14 @@ skills, Odoo BI-ingangen en Red Square-projectregels blijven actief zoals ze
 waren. In het bijzonder verandert deze repository de afspraak over opeenvolgende
 Red Square-tickets niet.
 
-Het uitgangspunt voor `dev-loop` is een korte persoonlijke ingang naar de
-bestaande projectworkflow en Matt Pococks recepten. Het voert geen tweede
-volledige PRD- en ticketmethodiek in. `saito-dev` houdt Saito-specifieke
-beslisregels bij elkaar en laadt operationele details alleen wanneer nodig.
+`dev-loop` koppelt Matt Pococks fasen automatisch aan elkaar: na de grill volgen
+specificatie, tickets, implementatie, review met herstel en retro. De agent kiest
+zelf testaanpak en ticketverdeling binnen de afgesproken scope. Er is geen
+goedkeuring per fase of ticket nodig; nieuwe productkeuzes buiten die scope
+gaan terug naar de gebruiker. Parallelle implementatie volgt de mogelijkheden
+en regels van het project. Een verzoek om alleen een grill of andere losse fase
+blijft tot die fase beperkt. `saito-dev` houdt Saito-specifieke beslisregels bij
+elkaar en laadt operationele details alleen wanneer nodig.
 
 Voor ophalen op een andere machine is geen GitHub-account nodig:
 
@@ -61,4 +65,5 @@ met wijzigingen buiten de vendormap krijgen de normale CI-controle.
 
 Matt Pococks bestanden behouden hun [MIT-licentie](vendor/matt-pocock/LICENSE).
 Zijn aanroepbeleid blijft behouden: workflowfasen worden op verzoek gestart;
-herbruikbare disciplines mogen de agent ondersteunen wanneer de taak past.
+`dev-loop` bundelt het verzoek om de hele keten zelfstandig af te werken.
+Herbruikbare disciplines mogen de agent ondersteunen wanneer de taak past.
