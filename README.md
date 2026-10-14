@@ -55,6 +55,9 @@ python3 scripts/update-matt-pocock.py
 De updater bewaart de upstream licentie en bronrevision, controleert metadata
 en hashes, en weigert lokale aanpassingen aan de bestaande vendorbestanden.
 Een upstream commit zonder gewijzigde skillbestanden maakt geen nieuwe PR.
+Vendorupdates worden in de updatejob gecontroleerd voordat de PR wordt gemaakt.
+PR's die uitsluitend vendorbestanden wijzigen starten daarom geen aanvullende
+PR-workflow. Andere PR's en iedere push naar `main` krijgen de normale CI-controle.
 
 Matt Pococks bestanden behouden hun [MIT-licentie](vendor/matt-pocock/LICENSE).
 Zijn aanroepbeleid blijft behouden: workflowfasen worden op verzoek gestart;
