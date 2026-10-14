@@ -209,7 +209,6 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check', action='store_true', help='Validate the snapshot without network access')
     parser.add_argument('--revision', help='Fetch a specific immutable upstream commit')
-    parser.add_argument('--summary-file', type=Path, help='Write a reviewable PR body')
     args = parser.parse_args()
     manifest, _, _, names = check_vendor()
     if args.check:
@@ -225,22 +224,6 @@ def main():
         return
     result = update(VENDOR, download_archive(revision), revision)
     print(json.dumps(result, indent=2))
-    if result['changed'] and args.summary_file:
-        body = (
-            f"Refresh the promoted Matt Pocock skills from `{result['previous_revision']}` "
-            f"to `{revision}`.\n\n"
-            f"[Upstream changes](https://github.com/{REPOSITORY}/compare/"
-            f"{result['previous_revision']}...{revision})\n\n"
-            f"- Skills in the snapshot: {result['skill_count']}\n"
-            f"- Added: {', '.join(result['added']) or 'none'}\n"
-            f"- Removed: {', '.join(result['removed']) or 'none'}\n"
-            f"- Changed files: {len(result['changed_files'])}\n\n"
-            "Validation: skill metadata and SHA-256 hashes checked before replacing the snapshot. "
-            "The upstream license and invocation policies are retained.\n\n"
-            "Review changes to workflow behavior and compatibility before merging. "
-            "Personal skills and machine installations remain separate.\n"
-        )
-        args.summary_file.write_text(body)
 
 
 if __name__ == '__main__':

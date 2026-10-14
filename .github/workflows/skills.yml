@@ -31,7 +31,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
     concurrency:
       group: matt-pocock-updates
       cancel-in-progress: false
@@ -47,30 +46,19 @@ jobs:
           python-version: '3.13'
       - run: python -m pip install -r requirements-dev.txt
       - name: Fetch and validate upstream skills
-        run: python scripts/update-matt-pocock.py --summary-file "$RUNNER_TEMP/matt-update.md"
+        run: python scripts/update-matt-pocock.py
       - name: Validate the candidate snapshot
         run: python scripts/update-matt-pocock.py --check
-      - name: Create or refresh the update pull request
+      - name: Publish the validated upstream snapshot
         shell: bash
         run: |
           set -euo pipefail
-          branch=automation/matt-pocock-updates
           if git diff --quiet -- vendor/matt-pocock && [ -z "$(git ls-files --others --exclude-standard vendor/matt-pocock)" ]; then
             echo "No upstream skill changes."
             exit 0
           fi
-          if git show-ref --verify --quiet "refs/remotes/origin/$branch" && git diff --quiet "origin/$branch" -- vendor/matt-pocock && git merge-base --is-ancestor origin/main "origin/$branch"; then
-            echo "The existing update branch already contains this snapshot."
-            exit 0
-          fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git switch -C "$branch"
           git add -- vendor/matt-pocock
           git commit -m 'Update Matt Pocock skills'
-          git push --force-with-lease origin "$branch"
-          if [ -n "$(gh pr list --head "$branch" --state open --json number --jq '.[0].number // empty')" ]; then
-            gh pr edit "$branch" --title 'Update Matt Pocock skills' --body-file "$RUNNER_TEMP/matt-update.md"
-          else
-            gh pr create --base main --head "$branch" --title 'Update Matt Pocock skills' --body-file "$RUNNER_TEMP/matt-update.md"
-          fi
+          git push origin HEAD:main

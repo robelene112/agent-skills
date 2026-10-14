@@ -37,11 +37,10 @@ wordt niet in Git opgenomen.
 
 Iedere maandag om 05:23 UTC controleert GitHub Actions de stabiele skills op
 upstream `main`. De officiële pluginmanifest bepaalt welke skills bij die set
-horen. Nieuwe, gewijzigde en verwijderde skills komen samen in één update-PR.
-De PR wordt bijgewerkt zolang hij openstaat. Na review en samenvoegen staat
-de nieuwe snapshot op `main`; ophalen en activeren op een machine is een
-afzonderlijke stap. De eigen skills onder `skills/` worden door de updater
-niet veranderd.
+horen. Nieuwe, gewijzigde en verwijderde skills worden gecontroleerd en direct
+op `main` bijgewerkt. Hiervoor is geen wekelijkse bevestiging nodig. Ophalen
+en activeren op een machine is een afzonderlijke stap. De eigen skills onder
+`skills/` worden door de updater niet veranderd.
 
 De workflow kan ook handmatig via GitHub Actions worden gestart. Voor lokale
 controle en bijwerken:
@@ -54,10 +53,11 @@ python3 scripts/update-matt-pocock.py
 
 De updater bewaart de upstream licentie en bronrevision, controleert metadata
 en hashes, en weigert lokale aanpassingen aan de bestaande vendorbestanden.
-Een upstream commit zonder gewijzigde skillbestanden maakt geen nieuwe PR.
-Vendorupdates worden in de updatejob gecontroleerd voordat de PR wordt gemaakt.
-PR's die uitsluitend vendorbestanden wijzigen starten daarom geen aanvullende
-PR-workflow. Andere PR's en iedere push naar `main` krijgen de normale CI-controle.
+Een upstream commit zonder gewijzigde skillbestanden maakt geen nieuwe commit.
+De updatejob controleert de kandidaat voordat hij naar `main` wordt gepusht.
+De push gebruikt de tijdelijke GitHub Actions-token; de updatejob levert de
+verificatie voor deze automatische commit. Gewone pushes naar `main` en PR's
+met wijzigingen buiten de vendormap krijgen de normale CI-controle.
 
 Matt Pococks bestanden behouden hun [MIT-licentie](vendor/matt-pocock/LICENSE).
 Zijn aanroepbeleid blijft behouden: workflowfasen worden op verzoek gestart;
