@@ -1,0 +1,3 @@
+interface:
+  display_name: "GitHub Issues"
+  short_description: "Use GitHub Issues for development specs and tickets"

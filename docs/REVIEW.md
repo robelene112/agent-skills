@@ -114,5 +114,25 @@ blijven historische gegevens.
 
 Odoo BI-termen en ADRs blijven projectgebonden; testcommando's, databases en
 runtimepaden blijven in de projecthandleiding. De persoonlijke bron en de
-projectinstallatie zijn op identieke bestandsinhoud gecontroleerd. De Odoo
-projectwijzigingen blijven lokaal volgens zijn bestaande commitafspraak.
+projectinstallatie zijn op identieke bestandsinhoud gecontroleerd. De gebruiker
+vroeg vervolgens om deze eigen Odoo-projectwijzigingen te committen; ze zijn
+vastgelegd in `d791c6a`, zonder de andere grill-handoff mee te nemen.
+
+## Persoonlijke regels en omgeving
+
+De gebruiker heeft drie expliciete regels vastgelegd. `global-communication`
+bevat de globale communicatievoorkeuren: geen em dashes in uitgaande tekst en
+vragen via de gewone chat, zodat antwoorden gedicteerd kunnen worden.
+`github-issues` legt GitHub Issues vast als tracker voor ontwikkeling. Deze
+persoonlijke regels wijzigen Matt Pococks upstream bestanden niet.
+
+`instructions/global/AGENTS.md` is de vaste instructie-ingang naar die twee
+skills. Op de VPS zijn de skills gekoppeld in `~/.agents/skills/`, met ingangen
+voor Codex en Claude Code. Odoo en Snake gebruiken GitHub voor nieuwe tickets;
+bestaande lokale plannen worden niet door deze instelling gemigreerd.
+De bijgewerkte Odoo-trackerconfiguratie is gecommit in `132248f`.
+
+De twee VPS-schijven zijn gecontroleerd tegen `lsblk`, `findmnt` en `df`:
+`/dev/vda4` is `/`, en `/dev/vdb1` is `/mnt/storage`. Die machinefeiten staan
+uitsluitend in `environments/vps/STORAGE.md`, met een gerichte verwijzing vanuit
+de bestaande home-instructies.
