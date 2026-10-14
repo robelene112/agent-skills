@@ -87,6 +87,32 @@ Dat onderscheid moet bij latere installatie en projectmigratie worden behouden
 of bewust opnieuw worden gekozen.
 
 OpenAI-systeemskills en connectorplugins vallen buiten deze persoonlijke
-bronrepository. Zij blijven door hun bestaande distributie beheerd. De oude
-Odoo 19-referenties en de lokale to-prd-compatibiliteitsingang zijn nog niet
-gewijzigd.
+bronrepository. Zij blijven door hun bestaande distributie beheerd. De lokale
+to-prd-compatibiliteitsingang is nog niet gewijzigd.
+
+## Odoo 20
+
+De gebruiker heeft de vervanging van Odoo 19 door Odoo 20 gevraagd, met uitsluitend
+frameworkkennis. De nieuwe `skills/odoo-20/` bevat een korte ingang en vier
+gerichte referenties: ORM/beveiliging, web/HTTP, moduledata/tests en primaire
+bronlocaties. De 19 uitgebreide oude handleidingen zijn geen actieve kennisbron
+meer. Er zijn geen grill-, PRD-, increment- of deploymentstappen toegevoegd.
+
+De inhoud is gecontroleerd door bronnen in de draaiende build `20.0-20260926`
+te lezen. De bestanden voor `ir.access`, de Owl-compatibiliteitslaag,
+`ir.config_parameter` en table objects komen op SHA-256 overeen met officiële
+commit `491e981505d28dfd85edea8ffb67bc8ed00826aa`. De overige beschreven grenzen
+zijn tegen de huidige frameworkbestanden en bestaande projectimplementatie
+bekeken. Dit is bronvalidatie, geen nieuwe runtime- of applicatietestrun.
+
+De projectinstallatie staat in `.agents/skills/odoo-20/`; de Claude-installatie
+linkt naar dezelfde map. De oude frameworkcheckout heeft eveneens een verwijzing
+naar die installatie, zodat zijn vroegere `odoo19`-skill niet zelfstandig blijft
+bestaan. Alle drie oude fysieke skillmappen zijn vooraf onder `.local/imports/`
+bewaard en uit de actieve locaties verwijderd. Historische migratiegegevens
+blijven historische gegevens.
+
+Odoo BI-termen en ADRs blijven projectgebonden; testcommando's, databases en
+runtimepaden blijven in de projecthandleiding. De persoonlijke bron en de
+projectinstallatie zijn op identieke bestandsinhoud gecontroleerd. De Odoo
+projectwijzigingen blijven lokaal volgens zijn bestaande commitafspraak.

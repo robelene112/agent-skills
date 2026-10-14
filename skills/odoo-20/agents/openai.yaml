@@ -1,0 +1,3 @@
+interface:
+  display_name: "Odoo 20"
+  short_description: "Odoo 20 framework APIs and integration pitfalls"
