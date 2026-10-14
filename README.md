@@ -7,25 +7,20 @@ Deze repository vervangt nog geen geïnstalleerde skill.
 
 | Onderdeel | Locatie | Status |
 | --- | --- | --- |
-| Persoonlijke ontwikkelwerkwijze | [dev-loop](skills/dev-loop/SKILL.md) | Herzien voorstel, nog niet geactiveerd |
 | Saito-ontwikkeling | [saito-dev](skills/saito-dev/SKILL.md) | Herzien voorstel, nog niet geactiveerd |
 | Matt Pocock | [Upstream skills](vendor/matt-pocock/skills/) | Ongewijzigde, gecontroleerde snapshot |
 | Beoordeling van bestaande skills | [Review](docs/REVIEW.md) | Behouden, verplaatsen en vervangen onderbouwd |
 | Bron en bestandscontrole | [source.json](vendor/matt-pocock/source.json) | Actuele bronrevision en SHA-256-hashes |
 
-De eigen skills zijn voorstellen voor een volgende versie. De huidige globale
-skills, Odoo BI-ingangen en Red Square-projectregels blijven actief zoals ze
-waren. In het bijzonder verandert deze repository de afspraak over opeenvolgende
-Red Square-tickets niet.
+`dev-loop` is op verzoek verwijderd, inclusief de globale, lokale Odoo- en oude
+laptopvarianten op de VPS. Ontwikkeling gebruikt Matt Pococks skills rechtstreeks
+en volgt de projectafspraken. De voorkeur om na een afgeronde grill zelfstandig
+de afgesproken keten af te werken hoort bij de opdracht of projectworkflow.
+In het bijzonder blijft Red Square opeenvolgende ticketimplementatie gebruiken.
 
-`dev-loop` koppelt Matt Pococks fasen automatisch aan elkaar: na de grill volgen
-specificatie, tickets, implementatie, review met herstel en retro. De agent kiest
-zelf testaanpak en ticketverdeling binnen de afgesproken scope. Er is geen
-goedkeuring per fase of ticket nodig; nieuwe productkeuzes buiten die scope
-gaan terug naar de gebruiker. Parallelle implementatie volgt de mogelijkheden
-en regels van het project. Een verzoek om alleen een grill of andere losse fase
-blijft tot die fase beperkt. `saito-dev` houdt Saito-specifieke beslisregels bij
-elkaar en laadt operationele details alleen wanneer nodig.
+`saito-dev` is nog een herzien voorstel. De geïnstalleerde versie is nog actief
+en wordt afzonderlijk beoordeeld. Het voorstel houdt Saito-specifieke
+beslisregels bij elkaar en laadt operationele details alleen wanneer nodig.
 
 Voor ophalen op een andere machine is geen GitHub-account nodig:
 
@@ -65,5 +60,4 @@ met wijzigingen buiten de vendormap krijgen de normale CI-controle.
 
 Matt Pococks bestanden behouden hun [MIT-licentie](vendor/matt-pocock/LICENSE).
 Zijn aanroepbeleid blijft behouden: workflowfasen worden op verzoek gestart;
-`dev-loop` bundelt het verzoek om de hele keten zelfstandig af te werken.
-Herbruikbare disciplines mogen de agent ondersteunen wanneer de taak past.
+herbruikbare disciplines mogen de agent ondersteunen wanneer de taak past.

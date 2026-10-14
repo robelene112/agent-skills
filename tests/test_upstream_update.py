@@ -55,7 +55,7 @@ class UpstreamUpdateTest(unittest.TestCase):
             'revision': 'a' * 40,
             'files': {'skills/old/SKILL.md': hashlib.sha256(old.read_bytes()).hexdigest()},
         }))
-        self.personal = self.root / 'skills/dev-loop/SKILL.md'
+        self.personal = self.root / 'skills/personal-example/SKILL.md'
         self.personal.parent.mkdir(parents=True)
         self.personal.write_bytes(b'Personal decisions stay here.\n')
 

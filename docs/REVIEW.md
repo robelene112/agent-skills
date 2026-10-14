@@ -1,67 +1,33 @@
 # Eerste beoordeling van de persoonlijke skills
 
 Beoordeling van 14 oktober 2026. De oorspronkelijke bestanden staan lokaal in
-`.local/imports/`, met hashes in `.local/imports.json`. De voorstellen onder
-`skills/` zijn nog niet in een agentinstallatie geactiveerd.
+`.local/imports/`, met hashes in `.local/imports.json`. Het Saito-voorstel onder
+`skills/` is nog niet in een agentinstallatie geactiveerd.
 
 ## Dev-loop
 
-Er zijn drie verschillende ingangen met dezelfde naam:
+Op 14 oktober 2026 heeft de gebruiker gekozen om `dev-loop` geheel te verwijderen,
+ook de lokale en oude varianten. De globale skill, het nieuwe voorstel in deze
+repository, de Odoo BI-ingang, de Claude-link daarnaar en de oude laptopversie
+in de Odoo-broncheckout zijn verwijderd.
 
-| Variant | Beoordeling |
-| --- | --- |
-| Globale dev-loop | Algemene workflow met bruikbare oriëntatie, gebruikersperspectief en verificatie; schrijft ook overal eigen PRD-conventies en één increment tegelijk voor |
-| Odoo BI-dev-loop | Korte lokale ingang naar de onderhouden Odoo-workflow; bewust projectgebonden en te behouden |
-| Dev-loop in de Odoo-broncheckout | Oude laptopworkflow met inmiddels onjuiste runtime-, test- en data-afspraken |
+De oude workflows bevatten eigen PRD-conventies, handmatige review per increment,
+laptopcommando's en beperkingen die niet meer bij de gewenste werkwijze passen.
+Ook het korte voorstel voor automatische fasecoördinatie vervalt: Matt Pococks
+skills worden rechtstreeks gebruikt, met autonomie in de opdracht of
+projectafspraken.
 
-De oude Odoo-bronvariant veronderstelt `custom_modules/odoo_bi`, een laptopvenv
-en `./odoo_bi.sh`. Hij laat de gebruiker tests uitvoeren, splitst standaard UI
-en backend, richt op 150 tot 300 regels en behandelt data als wegwerpbaar. De
-huidige Odoo-projectregels gebruiken de VPS-helper, een behouden database en
-verifieerbare verticale slices. Deze oude variant is geen geschikte algemene
-bron voor de nieuwe repository.
+De voorkeur blijft om na een afgeronde grill zelfstandig specificatie, tickets,
+implementatie en review met herstel af te werken. Technische keuzes over
+testaanpak en ticketverdeling zijn dan gedelegeerd binnen de afgesproken scope.
+Nieuwe productkeuzes buiten die scope gaan terug naar de gebruiker.
 
-### Behouden in het voorstel
-
-- Oriënteren op de werkelijke checkout, actuele code, gebruikerswijzigingen en
-  toepasselijke projectregels.
-- Repositoryfeiten zelf onderzoeken en bestaande beslissingen hergebruiken.
-- Werk afbakenen met een controleerbaar resultaat en passende verificatie.
-- Gebruikersfrictie serieus nemen bij productkeuzes; dit staat nu in een
-  afzonderlijke referentie voor werk aan gebruikersflows.
-- Overdracht en status baseren op bewijs, met onderscheid tussen code,
-  productacceptatie en deployment.
-
-### Vervangen of projectgebonden maken
-
-- De tweede eigen grill/PRD/increment-methodiek wordt een korte ingang naar de
-  geselecteerde projectworkflow en Matt Pococks skills.
-- Documentpaden, commitregels, runtimecommando's en afrondingsconventies horen
-  bij het project.
-- Eén increment tegelijk wordt geen universele beperking. `Next inc` blijft
-  één gevraagd onderdeel; parallel werk volgt de gekozen werkwijze en de
-  toepasselijke projectbeperkingen.
-- Herhaalde goedkeuring na een implementatieverzoek wordt vermeden; bestaande
-  autorisatie en werkelijk nieuwe externe handelingen blijven onderscheiden.
-
-### Besluit tijdens de herziening
-
-De gebruiker wil na de grill zelfstandig laten doorwerken: `to-spec`,
-`to-tickets`, implementatie, review met herstel en retro. De oude rol met
-handmatige review per increment en een eigen planningsmethodiek vervalt.
-
-De toegevoegde waarde van `dev-loop` is nu uitsluitend het koppelen en hervatten
-van deze fasen. Matt Pocock blijft de inhoudelijke bron. Zijn `to-spec` vraagt
-om bevestiging van testseams en `to-tickets` om goedkeuring van ticketverdeling;
-in deze persoonlijke workflow zijn die technische keuzes aan de agent
-gedelegeerd. De upstream bestanden blijven ongewijzigd.
-
-`implement-spec` is de route voor nuttige, toegestane parallelle uitvoering;
-anders rondt `implement` het afgesproken werk opeenvolgend af. De review die
-beide implementatieskills al aanroepen wordt hergebruikt. Een losse opdracht
-voor één fase blijft beperkt tot die fase. Nieuwe productkeuzes buiten de
-afgesproken scope gaan terug naar de gebruiker. Er is nog geen installatie
-uitgevoerd en bestaande projectworkflows zijn nog niet aangepast.
+Actieve verwijzingen naar de verwijderde skill zijn bijgewerkt. Odoo gebruikt
+rechtstreeks `docs/agents/development-workflow.md`. De runtime-, data- en
+commitafspraken blijven in dat document. Matt Pococks bestanden zijn ongewijzigd.
+Oorspronkelijke varianten blijven uitsluitend als niet-actieve imports onder
+`.local/`; het verwijderde voorstel is terug te vinden in Git. Historische
+migratieback-ups en oude gespreksdocumenten zijn geen actieve installaties.
 
 ## Saito-dev
 
@@ -83,6 +49,29 @@ kleine wijziging niet automatisch een nieuwe payloadversie vereist.
 
 Dit is een beoordeling van instructies en gelezen broncode. Er is geen
 live-node-, deployment- of protocolimplementatietest uitgevoerd.
+
+### Toegevoegde waarde na het verwijderen van dev-loop
+
+Advies: behoud een compacte Saito-domeinskill. Matt Pococks skills regelen de
+ontwikkelwerkwijze; ze bevatten geen Saito-module-, transactie- of runtimekennis.
+Die kennis is bruikbaar voor zowel Snake als andere Saito-integraties.
+
+| Inhoud | Plaats |
+| --- | --- |
+| Saito-modulelifecycles, callbacks en browser/server/native grenzen | Domeinskill, met de actuele checkout als API-bron |
+| Identiteit, ondertekening, ontvangstvalidatie, herhaling en publieke payloads | Domeinskill, toegepast op de veranderde grens |
+| Consensusgegevens, archief, lokale indexes en herstelbaarheid | Domeinskill voor de keuze; concrete opslagafspraken in het project |
+| Versiepins, paden, hostnamen, publishers en releasehistorie | Projectdocumentatie |
+| Algemene planning, implementatiestappen, commitautorisatie en deploymentlessen | Geselecteerde workflow en projectafspraken |
+
+Voorbeeld uit de huidige Snake-bron: `onConfirmation` gebruikt de signer,
+normaliseert een replay en verifieert de run. Een ondertekende scoreclaim alleen
+is onvoldoende. De runtimeguards en het gedeelde opslagadaptercontract zijn
+andere concrete redenen om de domeinkennis te behouden.
+
+De oude geïnstalleerde skill is inhoudelijk nog niet vervangen. Alleen de
+verwijzing naar de verwijderde `dev-loop` is aangepast. Het compactere voorstel
+in deze repository blijft beschikbaar voor verdere bespreking.
 
 ## Matt Pocock en bestaande projecten
 

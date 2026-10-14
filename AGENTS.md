@@ -5,7 +5,7 @@ Own skills live in `skills/`. The pinned Matt Pocock snapshot lives in
 `vendor/matt-pocock/source.json`. Preserve upstream files and their license.
 Put personal choices in own skills and project choices in the project's rules.
 
-Read `docs/REVIEW.md` before revising `dev-loop` or `saito-dev`. Keep descriptions
+Read `docs/REVIEW.md` before revising `saito-dev`. Keep descriptions
 specific, load conditional detail through references, and preserve an existing
 invocation policy unless the user requests a change. Validate revised skills
 and verify upstream hashes after updates.
