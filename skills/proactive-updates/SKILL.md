@@ -1,6 +1,6 @@
 ---
 name: proactive-updates
-description: Proactively notice and verify useful updates to tools, container images, dependencies, and OS packages during software or environment work. Applies across David's machines, including when maintenance was not explicitly requested.
+description: Synchronize the shared skills source at session startup and proactively check relevant Git repositories, tools, container images, dependencies, and OS packages during software or environment work. Applies across David's machines.
 ---
 
 # Proactive Updates
@@ -9,8 +9,35 @@ description: Proactively notice and verify useful updates to tools, container im
 
 Treat maintenance awareness as part of normal work across environments. When
 the task involves software or an environment, look for worthwhile updates to
-the components involved: Docker images, agent tooling such as Codex, project
-dependencies, runtimes and operating-system packages.
+the components involved: Git repositories, Docker images, agent tooling such as
+Codex, project dependencies, runtimes and operating-system packages. At session
+startup, synchronize the shared skills source as described below.
+
+## Synchronize Git repositories
+
+At the start of a session, locate the shared skills source checkout through the
+installed skill links or machine configuration, when present. Check it before
+beginning work, and read any updated instructions before continuing. Also check
+each task-related repository before starting work there. Reuse checks within the
+session; keep this targeted to the shared skills source and repositories in use.
+
+Fetch from the repository's configured upstream remote and inspect the branch,
+working tree and ahead/behind state. Automatically run `git pull --ff-only`
+when the current branch has the expected upstream, is behind it, has no local
+commits, and the checkout is clean, including untracked files. Confirm that no
+other agent or job is working in that checkout. Respect intentional revision
+pins and detached checkouts. These qualifying pulls require no further approval.
+
+If the checkout has local changes or commits, divergent history, an unexpected
+upstream or concurrent work, report the blocker and leave the checkout intact.
+Do not automatically stash, reset, rebase, merge or switch branches to make an
+update possible. Report a failed fetch or pull without claiming the repository
+is up to date.
+
+For checkouts read directly by a running application, including bind mounts and
+hot reload, follow the project's update or deployment procedure before pulling.
+A fast-forward only checks Git history; it does not establish runtime safety or
+authorize a deployment.
 
 ## Check with evidence
 
@@ -46,5 +73,6 @@ Apply updates that fall within the user's request or existing authorization,
 using the project's supported checks and update procedure. Existing authorized
 automatic updaters can continue their work. For a finding outside that scope,
 present the concrete proposal; ask in ordinary chat when a decision is needed.
-The request to watch for updates establishes proactive checking and reporting,
-not blanket authorization to upgrade systems or restart services.
+The Git synchronization policy above authorizes qualifying fast-forward pulls.
+Other proactive checks do not establish blanket authorization to upgrade systems
+or restart services.

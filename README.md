@@ -39,11 +39,20 @@ blijven bestaande administratie; de nieuwe afspraak voert geen automatische
 migratie van oude plannen uit.
 
 De globale onderhoudsregel laat agents actief letten op updates van Docker
-images, Codex en andere tools, projectafhankelijkheden en systeempakketten.
+images, Codex en andere tools, Git-repositories, projectafhankelijkheden en
+systeempakketten.
 Ze controleren relevante onderdelen gericht, hergebruiken recente bevindingen
 en melden concrete verbeteringen met hun impact. Uitvoeren volgt de bestaande
 autorisatie en de updateprocedure van het project of de omgeving. Dit legt geen
 nieuwe periodieke systeemaudit vast.
+
+Bij sessiestart controleert de agent de bronrepository van de gedeelde skills.
+Voor taakgebonden repositories gebeurt dat voordat het werk erin begint. Een
+schone checkout met de verwachte upstream, zonder eigen commits of gelijktijdig
+werk, mag zelfstandig worden bijgewerkt met `git pull --ff-only`. Lokale
+wijzigingen of afwijkende geschiedenis worden gemeld en behouden. Voor checkouts
+waaruit een applicatie direct draait, geldt de projectprocedure voor updates of
+deployment.
 
 Voor ophalen op een andere machine is geen GitHub-account nodig:
 
@@ -76,9 +85,10 @@ behouden.
 Bij links naar deze bronrepository werkt een `git pull --ff-only` de skillinhoud
 bij. Een gekopieerde skill moet na een bronupdate opnieuw gekopieerd worden.
 Neem een gewijzigde globale ingang ook over in je persoonlijke instructiebestand.
-GitHub haalt de Matt Pocock-updates automatisch op; lokale checkouts hebben nog
-geen automatische pull. De VPS-notitie hoort niet op de laptops geactiveerd te
-worden.
+GitHub haalt de Matt Pocock-updates automatisch op; agents werken geschikte
+lokale checkouts bij volgens de skill. Dit gebeurt tijdens een agentsessie;
+er is geen lokale timer ingericht. De VPS-notitie hoort niet op de laptops
+geactiveerd te worden.
 
 ## Matt Pocock bijwerken
 
