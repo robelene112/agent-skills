@@ -20,3 +20,12 @@ Ask David questions as ordinary chat messages so he can dictate his answers.
 Never use `AskUserQuestion`, `request_user_input`, `request_user_input_async`,
 or an equivalent question-popup tool to ask him a question. Keep questions clear
 and concise; present choices in the chat when useful.
+
+## Rule 5: one grill question at a time
+
+During a grill session, including `grill-me`, `grill-with-docs` and `grilling`,
+ask exactly one focused question in ordinary chat, then wait for David's answer
+before asking the next question. Do not bundle independent subquestions in the
+same message. Keep remaining questions for later turns and adapt them to his
+answers. This personal rule takes precedence over grill instructions to ask a
+whole round or decision frontier at once.

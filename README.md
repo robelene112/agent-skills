@@ -8,7 +8,7 @@ kopie van Matt Pococks volledige stabiele skillset:
 | --- | --- | --- |
 | Saito-ontwikkeling | [saito-dev](skills/saito-dev/SKILL.md) | Herzien voorstel, nog niet geactiveerd |
 | Odoo 20-frameworkkennis | [odoo-20](skills/odoo-20/SKILL.md) | Geïnstalleerd in het Odoo BI-project |
-| Globale communicatieregels | [global-communication](skills/global-communication/SKILL.md) | Geen em dashes; vragen in de chat |
+| Globale communicatieregels | [global-communication](skills/global-communication/SKILL.md) | Geen em dashes; vragen in de chat; tijdens een grill één vraag per keer |
 | Tracker voor ontwikkeling | [github-issues](skills/github-issues/SKILL.md) | Nieuwe tickets en trackerspecificaties zijn GitHub Issues |
 | Actief letten op updates | [proactive-updates](skills/proactive-updates/SKILL.md) | Globale onderhoudsaandacht tijdens software- en omgevingswerk |
 | Globale instructie-ingang | [AGENTS.md](instructions/global/AGENTS.md) | Laadt de persoonlijke regels |
