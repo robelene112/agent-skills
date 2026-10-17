@@ -44,9 +44,14 @@ De globale bestandsregel voorkomt ongevraagde onderzoeksrapporten en andere
 werkaantekeningen in projectmappen. Onderzoek voor de agent zelf blijft standaard
 in de sessie; noodzakelijke tijdelijke bestanden gaan naar een tijdelijke map
 buiten het project en worden opgeruimd zodra ze niet meer nodig zijn. Code,
-tests, assets, gevraagde documenten en blijvend bruikbare projectkennis horen
-wel op hun bestaande plek. Werk relevante documentatie bij met de benodigde
-conclusie. De regel vraagt geen opschoning van bestaande bestanden.
+tests, assets en gevraagde documenten horen op hun bestaande plek. Leg concrete
+projectkennis die volgende agents helpt compact vast in bestaande documentatie;
+algemeen achtergrondonderzoek is geen reden om een heel rapport te bewaren.
+Onderzoek naar effectieve logo's dient bijvoorbeeld om logo's op te leveren
+waaruit David kan kiezen. Controleer aan het einde welke bestanden zijn toegevoegd
+en of die bij het gevraagde resultaat horen. Een adviesvraag geeft op zichzelf
+geen opdracht om bestanden te wijzigen of wijzigingen te publiceren. De regel
+vraagt geen opschoning van bestaande bestanden.
 
 De programmeerregels gelden voor softwareontwikkeling in alle projecten en
 omgevingen. Agents ondernemen geen cyberwerk waarvoor Daybreak of vergelijkbare
