@@ -14,11 +14,6 @@ Treat a request for advice or suggestions as a discussion. That alone does not
 authorize editing files or publishing changes; wait for an implementation
 request before making the proposed changes.
 
-For example, when research into what makes an effective logo is requested to
-guide logo creation, use the research to produce logo candidates for David to
-choose from. The candidates and chosen logo are the deliverables. The literature
-review is working material, not an automatic report or permanent project record.
-
 ## Working material stays temporary
 
 Keep exploratory notes and intermediate findings in the session by default.
@@ -59,3 +54,41 @@ Remove your own temporary material once it is no longer needed, and retain the
 actual deliverables in their proper locations. Preserve existing user work and
 files owned by other tasks or agents. This rule does not request a bulk cleanup
 of existing files.
+
+## Approved scenarios
+
+1. **Research to create logos.** David asks for scientific research into what
+   makes an effective logo and for logo proposals based on it. Use the research
+   to create candidates for him to choose from. Keep the selected logo and
+   necessary source assets. Research notes and downloads are temporary; do not
+   leave the literature review or a research report in the project directory.
+
+2. **Choose and implement a technical solution.** David asks to compare suitable
+   libraries and implement a feature. Keep the code, relevant tests and
+   configuration. Do not create a comparison report or save the comparison
+   results as a separate document. Record the library choice and its essential
+   reason only when that matters for this project's future work, using existing
+   documentation. Documenting every library selection is not required.
+
+3. **Investigate and fix a bug.** David asks why an import creates duplicate
+   records and asks for a fix. Keep the fix and relevant regression test. Clean
+   up one-off investigation scripts and temporary test files after use. If the
+   investigation reveals an important project limitation, record it concisely
+   in the existing documentation so the next agent can avoid the same problem.
+
+4. **Discover missing project knowledge.** While working, an agent discovers
+   the verified command needed to run tests or start the project, but it is
+   undocumented. Add the command and necessary execution context to the existing
+   development instructions so future agents do not repeat the investigation.
+   This is useful maintained project knowledge.
+
+5. **A report is the requested deliverable.** David explicitly asks for a PDF
+   report of the research that he can share. Produce the requested PDF in the
+   agreed location and preserve it as the deliverable. Follow the requested
+   format; clean up temporary downloads and intermediate working files.
+
+6. **Advice only.** David asks for suggestions to make the documentation more
+   organized. Investigate enough to offer considered suggestions in the chat.
+   Do not create a report in the project directory, write an unsolicited long
+   report in the chat, or edit, move or publish project files. Make the proposed
+   changes when David requests implementation.
