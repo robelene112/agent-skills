@@ -6,9 +6,10 @@ Own skills live in `skills/`. The pinned Matt Pocock snapshot lives in
 Put personal choices in own skills and project choices in the project's rules.
 
 Read `skills/global-communication/SKILL.md` for every task. For software or
-environment work, read `skills/proactive-updates/SKILL.md`. For development
-tracking, read `skills/github-issues/SKILL.md`. The global startup template is in
-`instructions/global/AGENTS.md`; machine facts belong under `environments/`.
+environment work, read `skills/proactive-updates/SKILL.md`. For software
+development, read `skills/development-preferences/SKILL.md`; for development
+tracking, read `skills/github-issues/SKILL.md`. The global startup template is
+in `instructions/global/AGENTS.md`; machine facts belong under `environments/`.
 
 Read `docs/REVIEW.md` before revising `saito-dev` or `odoo-20`. Keep descriptions
 specific, load conditional detail through references, and preserve an existing

@@ -11,5 +11,6 @@ to relevant Git repositories, tools, container images, dependencies and
 operating-system packages during work.
 
 For software development, also read and apply
-`~/.agents/skills/github-issues/SKILL.md`. Project documentation identifies the
-repository, business domain and technical constraints.
+`~/.agents/skills/github-issues/SKILL.md` and
+`~/.agents/skills/development-preferences/SKILL.md`. Project documentation
+identifies the repository, business domain and technical constraints.

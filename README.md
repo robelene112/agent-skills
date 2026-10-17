@@ -10,6 +10,7 @@ kopie van Matt Pococks volledige stabiele skillset:
 | Odoo 20-frameworkkennis | [odoo-20](skills/odoo-20/SKILL.md) | Geïnstalleerd in het Odoo BI-project |
 | Globale communicatieregels | [global-communication](skills/global-communication/SKILL.md) | Geen em dashes; vragen in de chat; tijdens een grill één vraag per keer |
 | Tracker voor ontwikkeling | [github-issues](skills/github-issues/SKILL.md) | Nieuwe tickets en trackerspecificaties zijn GitHub Issues |
+| Programmeerregels | [development-preferences](skills/development-preferences/SKILL.md) | Geen cyberwerk met beperkte toegang; verzorgde UI met SVG- of CSS-iconen |
 | Actief letten op updates | [proactive-updates](skills/proactive-updates/SKILL.md) | Globale onderhoudsaandacht tijdens software- en omgevingswerk |
 | Globale instructie-ingang | [AGENTS.md](instructions/global/AGENTS.md) | Laadt de persoonlijke regels |
 | VPS-opslag | [Storage](environments/vps/STORAGE.md) | Alleen voor de VPS; `/` en `/mnt/storage` |
@@ -37,6 +38,14 @@ De communicatie- en trackerregels zijn persoonlijk en gelden in alle omgevingen.
 De VPS-opslagnotitie is uitsluitend voor die machine. Bestaande lokale tickets
 blijven bestaande administratie; de nieuwe afspraak voert geen automatische
 migratie van oude plannen uit.
+
+De programmeerregels gelden voor softwareontwikkeling in alle projecten en
+omgevingen. Agents ondernemen geen cyberwerk waarvoor Daybreak of vergelijkbare
+extra toegang nodig is en stoppen bij een blokkade, zonder omweg of voorstel om
+toegang aan te vragen. Gewone veilige implementatie en regressietests blijven
+onderdeel van het werk. Interfaces krijgen een bewuste visuele vormgeving;
+Unicode-pijlen en driehoekjes als UI-iconen worden vervangen door passende SVG-
+of CSS-vormen. De regel geldt voor de UI die wordt gemaakt of aangepast.
 
 De globale onderhoudsregel laat agents actief letten op updates van Docker
 images, Codex en andere tools, Git-repositories, projectafhankelijkheden en
@@ -66,8 +75,9 @@ wordt niet in Git opgenomen.
 
 ## Regels gebruiken op een andere machine
 
-Koppel of kopieer `skills/global-communication/`, `skills/github-issues/` en
-`skills/proactive-updates/` naar `~/.agents/skills/`. Plaats de inhoud van
+Koppel of kopieer `skills/global-communication/`, `skills/github-issues/`,
+`skills/proactive-updates/` en `skills/development-preferences/` naar
+`~/.agents/skills/`. Plaats de inhoud van
 [de globale ingang](instructions/global/AGENTS.md) in Codex' `~/.codex/AGENTS.md`
 (of de `AGENTS.md` in je eigen `CODEX_HOME`). Behoud eventuele bestaande
 persoonlijke instructies. De ingang verwijst naar dezelfde skills op iedere
@@ -78,7 +88,7 @@ zie [skills](https://learn.chatgpt.com/docs/build-skills) en
 Claude Code kan dezelfde ingang laden vanuit `~/.claude/CLAUDE.md`; zie
 [Claude-geheugen](https://code.claude.com/docs/en/memory). Andere agents moeten
 dezelfde regels vanuit hun eigen vaste instructie-ingang lezen. Start een nieuwe
-sessie om de nieuwe globale ingang te laden. Op de VPS zijn de drie persoonlijke
+sessie om de nieuwe globale ingang te laden. Op de VPS zijn de vier persoonlijke
 skills gekoppeld en ingangen ingesteld; de bestaande projectrouting blijft
 behouden.
 
