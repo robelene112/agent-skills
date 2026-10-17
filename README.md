@@ -45,7 +45,12 @@ extra toegang nodig is en stoppen bij een blokkade, zonder omweg of voorstel om
 toegang aan te vragen. Gewone veilige implementatie en regressietests blijven
 onderdeel van het werk. Interfaces krijgen een bewuste visuele vormgeving;
 Unicode-pijlen en driehoekjes als UI-iconen worden vervangen door passende SVG-
-of CSS-vormen. De regel geldt voor de UI die wordt gemaakt of aangepast.
+of CSS-vormen. Nieuwe UI sluit aan op de bestaande vormgeving; ontbreekt die,
+dan wordt eerst een gedeelde design language vastgesteld. De hele applicatie
+gebruikt dezelfde visuele en interactieafspraken. Interacties zoals uitklappen
+krijgen korte, vloeiende animaties die de bediening niet vertragen, met respect
+voor voorkeuren voor minder beweging. De regel geldt voor de UI die wordt
+gemaakt of aangepast.
 
 De globale onderhoudsregel laat agents actief letten op updates van Docker
 images, Codex en andere tools, Git-repositories, projectafhankelijkheden en

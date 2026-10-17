@@ -1,6 +1,6 @@
 ---
 name: development-preferences
-description: Apply David's programming preferences when planning, implementing, or reviewing software. Avoid cybersecurity work requiring restricted access and build polished interfaces with deliberate visual design and SVG or CSS icons. Applies across projects and machines.
+description: Apply David's programming preferences when planning, implementing, or reviewing software. Avoid cybersecurity work requiring restricted access and build polished interfaces with consistent application-wide design, SVG or CSS icons, and responsive motion. Applies across projects and machines.
 ---
 
 # Development Preferences
@@ -34,16 +34,27 @@ access distinction and false-positive limitation.
 
 ## Rule 2: build polished, deliberate interfaces
 
-Give UI work a deliberate visual identity suited to the product and its existing
-design system. Treat typography, spacing, hierarchy, color, icons and interaction
-states as design decisions. Avoid shipping generic template styling, placeholder
-controls or unfinished default components as the final interface.
+Match the surrounding UI and the application's established design language.
+Keep typography, spacing, hierarchy, color, component shapes, icons, interaction
+states and motion consistent across the application. When no design language
+exists, establish a coherent one for the product before building individual
+screens. Record and reuse its shared design tokens and components so subsequent
+work follows the same choices. Avoid shipping generic template styling,
+placeholder controls or unfinished default components as the final interface.
 
 Never use Unicode arrows, chevrons, triangles or similar character glyphs as UI
 icons, including navigation and expand/collapse controls. This applies to text
 nodes and CSS-generated content. Use SVG icons, shapes drawn with CSS or custom
 vector assets that fit the interface. Reuse or refine suitable project icon
 components and keep their proportions, stroke weight and alignment consistent.
+
+Add short, fluid animations to interactions and state changes, especially when
+expanding or collapsing content. Reuse the application's motion conventions;
+where none exist, define consistent durations and easing alongside the visual
+design. Start around 150-200 ms for small transitions and adjust to the component.
+Keep the interface responsive and avoid slow animations, artificial waits or
+blocking interaction until a transition finishes. Respect reduced-motion
+preferences with minimal or no motion.
 
 Preserve accessible controls, keyboard operation and focus states while styling
 them. When a preview is available, inspect the rendered result at the relevant
