@@ -9,6 +9,7 @@ kopie van Matt Pococks volledige stabiele skillset:
 | Saito-ontwikkeling | [saito-dev](skills/saito-dev/SKILL.md) | Herzien voorstel, nog niet geactiveerd |
 | Odoo 20-frameworkkennis | [odoo-20](skills/odoo-20/SKILL.md) | Geïnstalleerd in het Odoo BI-project |
 | Globale communicatieregels | [global-communication](skills/global-communication/SKILL.md) | Geen em dashes; vragen in de chat; tijdens een grill één vraag per keer |
+| Bestanden en werkaantekeningen | [workspace-hygiene](skills/workspace-hygiene/SKILL.md) | Intern onderzoek blijft in de sessie of tijdelijke opslag; blijvende bestanden hebben een duidelijk doel |
 | Tracker voor ontwikkeling | [github-issues](skills/github-issues/SKILL.md) | Nieuwe tickets en trackerspecificaties zijn GitHub Issues |
 | Programmeerregels | [development-preferences](skills/development-preferences/SKILL.md) | Geen cyberwerk met beperkte toegang; verzorgde UI met SVG- of CSS-iconen |
 | Actief letten op updates | [proactive-updates](skills/proactive-updates/SKILL.md) | Globale onderhoudsaandacht tijdens software- en omgevingswerk |
@@ -38,6 +39,14 @@ De communicatie- en trackerregels zijn persoonlijk en gelden in alle omgevingen.
 De VPS-opslagnotitie is uitsluitend voor die machine. Bestaande lokale tickets
 blijven bestaande administratie; de nieuwe afspraak voert geen automatische
 migratie van oude plannen uit.
+
+De globale bestandsregel voorkomt ongevraagde onderzoeksrapporten en andere
+werkaantekeningen in projectmappen. Onderzoek voor de agent zelf blijft standaard
+in de sessie; noodzakelijke tijdelijke bestanden gaan naar een tijdelijke map
+buiten het project en worden opgeruimd zodra ze niet meer nodig zijn. Code,
+tests, assets, gevraagde documenten en blijvend bruikbare projectkennis horen
+wel op hun bestaande plek. Werk relevante documentatie bij met de benodigde
+conclusie. De regel vraagt geen opschoning van bestaande bestanden.
 
 De programmeerregels gelden voor softwareontwikkeling in alle projecten en
 omgevingen. Agents ondernemen geen cyberwerk waarvoor Daybreak of vergelijkbare
@@ -80,8 +89,9 @@ wordt niet in Git opgenomen.
 
 ## Regels gebruiken op een andere machine
 
-Koppel of kopieer `skills/global-communication/`, `skills/github-issues/`,
-`skills/proactive-updates/` en `skills/development-preferences/` naar
+Koppel of kopieer `skills/global-communication/`, `skills/workspace-hygiene/`,
+`skills/github-issues/`, `skills/proactive-updates/` en
+`skills/development-preferences/` naar
 `~/.agents/skills/`. Plaats de inhoud van
 [de globale ingang](instructions/global/AGENTS.md) in Codex' `~/.codex/AGENTS.md`
 (of de `AGENTS.md` in je eigen `CODEX_HOME`). Behoud eventuele bestaande
@@ -93,7 +103,7 @@ zie [skills](https://learn.chatgpt.com/docs/build-skills) en
 Claude Code kan dezelfde ingang laden vanuit `~/.claude/CLAUDE.md`; zie
 [Claude-geheugen](https://code.claude.com/docs/en/memory). Andere agents moeten
 dezelfde regels vanuit hun eigen vaste instructie-ingang lezen. Start een nieuwe
-sessie om de nieuwe globale ingang te laden. Op de VPS zijn de vier persoonlijke
+sessie om de nieuwe globale ingang te laden. Op de VPS zijn de vijf persoonlijke
 skills gekoppeld en ingangen ingesteld; de bestaande projectrouting blijft
 behouden.
 

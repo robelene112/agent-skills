@@ -1,8 +1,9 @@
 # Personal instructions
 
 At the start of every task, read and apply
-`~/.agents/skills/global-communication/SKILL.md`. These communication preferences
-apply across machines and task domains.
+`~/.agents/skills/global-communication/SKILL.md` and
+`~/.agents/skills/workspace-hygiene/SKILL.md`. These communication and workspace
+preferences apply across machines and task domains.
 
 At the start of each session, and during software or environment work, read and
 apply `~/.agents/skills/proactive-updates/SKILL.md`. Synchronize the shared skills

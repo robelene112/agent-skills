@@ -1,0 +1,3 @@
+interface:
+  display_name: "Workspace Hygiene"
+  short_description: "Keep project files focused and working notes temporary"
