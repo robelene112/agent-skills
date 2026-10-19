@@ -25,6 +25,19 @@ jobs:
       - run: python scripts/update-matt-pocock.py --check
       - run: python -m unittest discover -s tests -v
 
+  outlook-local:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Test Outlook helper with synthetic mail in Windows PowerShell 5.1
+        shell: powershell
+        run: |
+          $PSVersionTable.PSVersion
+          if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) {
+            throw 'These tests must run in Windows PowerShell 5.1.'
+          }
+          ./tests/test_outlook_local.ps1
+
   update:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     needs: validate

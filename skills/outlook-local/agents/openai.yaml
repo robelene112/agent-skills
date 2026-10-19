@@ -1,0 +1,3 @@
+interface:
+  display_name: "Outlook Local"
+  short_description: "Search local Outlook mail and preserve unread status"

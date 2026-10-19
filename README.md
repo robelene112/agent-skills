@@ -12,6 +12,7 @@ kopie van Matt Pococks volledige stabiele skillset:
 | Bestanden en werkaantekeningen | [workspace-hygiene](skills/workspace-hygiene/SKILL.md) | Intern onderzoek blijft in de sessie of tijdelijke opslag; blijvende bestanden hebben een duidelijk doel |
 | Tracker voor ontwikkeling | [github-issues](skills/github-issues/SKILL.md) | Nieuwe tickets en trackerspecificaties zijn GitHub Issues |
 | Programmeerregels | [development-preferences](skills/development-preferences/SKILL.md) | Geen cyberwerk met beperkte toegang; verzorgde UI met SVG- of CSS-iconen |
+| Lokale Outlook-mail | [outlook-local](skills/outlook-local/SKILL.md) | Alleen Windows/WSL met klassiek Outlook; nieuwe helper nog op laptop te valideren |
 | Actief letten op updates | [proactive-updates](skills/proactive-updates/SKILL.md) | Globale onderhoudsaandacht tijdens software- en omgevingswerk |
 | Globale instructie-ingang | [AGENTS.md](instructions/global/AGENTS.md) | Laadt de persoonlijke regels |
 | VPS-opslag | [Storage](environments/vps/STORAGE.md) | Alleen voor de VPS; `/` en `/mnt/storage` |
@@ -111,6 +112,14 @@ dezelfde regels vanuit hun eigen vaste instructie-ingang lezen. Start een nieuwe
 sessie om de nieuwe globale ingang te laden. Op de VPS zijn de vijf persoonlijke
 skills gekoppeld en ingangen ingesteld; de bestaande projectrouting blijft
 behouden.
+
+De Outlook-skill wordt afzonderlijk geactiveerd in de Windows/WSL-omgeving met
+klassiek Outlook. Zie [lokale Outlook-installatie](environments/windows-wsl/OUTLOOK.md).
+De standaard omvat alle gekoppelde mailboxen en toegankelijke mailmappen,
+inclusief spam en verwijderde items. De helper leest en zoekt, controleert de
+ongelezenstatus en herstelt die alleen wanneer een oorspronkelijk ongelezen
+bericht tijdens het lezen toch als gelezen is gemarkeerd. Gewone leesacties
+slaan niets op. De VPS-installatie krijgt deze lokale Windows-capaciteit niet.
 
 Bij links naar deze bronrepository werkt een `git pull --ff-only` de skillinhoud
 bij. Een gekopieerde skill moet na een bronupdate opnieuw gekopieerd worden.
