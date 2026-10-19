@@ -110,11 +110,89 @@ class SetupTests(unittest.TestCase):
             self.apply('linux')
         self.assertEqual(link.readlink(), self.home / 'my-other-outlook-skill')
 
-    def test_legacy_codex_skill_is_not_silently_duplicated(self):
-        self.skill(self.home / '.codex/skills/grill-with-docs')
-        with self.assertRaisesRegex(setup.SetupError, 'Legacy skill would be duplicated'):
+    def test_legacy_codex_skills_are_backed_up_without_active_duplicates(self):
+        legacy_root = self.home / '.codex/skills'
+        legacy = legacy_root / 'grill-with-docs'
+        self.skill(legacy)
+        customized = b'Keep my local changes.\n'
+        (legacy / 'local-notes.txt').write_bytes(customized)
+        original = (legacy / 'SKILL.md').read_bytes()
+        unrelated = legacy_root / 'my-custom-skill'
+        self.skill(unrelated)
+        system = legacy_root / '.system'
+        system.mkdir()
+        (system / 'keep.txt').write_text('Bundled skills stay in place.')
+        self.apply()
+        self.assertFalse(os.path.lexists(legacy))
+        self.assertEqual((self.home / '.agents/skills/grill-with-docs').resolve(),
+                         self.repo / 'vendor/matt-pocock/skills/grill-with-docs')
+        state = json.loads(self.state.read_text())
+        backup = Path(state['legacy_backups'][0])
+        self.assertNotIn(legacy_root, backup.parents)
+        self.assertEqual((backup / 'grill-with-docs/SKILL.md').read_bytes(), original)
+        self.assertEqual((backup / 'grill-with-docs/local-notes.txt').read_bytes(), customized)
+        self.assertTrue((unrelated / 'SKILL.md').exists())
+        self.assertEqual((system / 'keep.txt').read_text(), 'Bundled skills stay in place.')
+        before = self.state.read_bytes()
+        self.apply()
+        self.assertEqual(self.state.read_bytes(), before)
+        self.assertEqual(list(backup.parent.iterdir()), [backup])
+
+    def test_legacy_symlinks_are_backed_up_without_touching_their_targets(self):
+        legacy_root = self.home / '.codex/skills'
+        legacy_root.mkdir(parents=True)
+        external = self.base / 'external-skill'
+        self.skill(external)
+        original = (external / 'SKILL.md').read_bytes()
+        (legacy_root / 'grill-with-docs').symlink_to(external, target_is_directory=True)
+        (legacy_root / 'implement-spec').symlink_to('../missing-skill', target_is_directory=True)
+        self.apply()
+        backup = Path(json.loads(self.state.read_text())['legacy_backups'][0])
+        self.assertEqual((backup / 'grill-with-docs').readlink(), external)
+        self.assertEqual((backup / 'implement-spec').readlink(), Path('../missing-skill'))
+        self.assertEqual((external / 'SKILL.md').read_bytes(), original)
+        self.assertFalse(os.path.lexists(legacy_root / 'grill-with-docs'))
+        self.assertFalse(os.path.lexists(legacy_root / 'implement-spec'))
+
+    def test_other_conflicts_are_checked_before_moving_any_legacy_skills(self):
+        legacy = self.home / '.codex/skills/grill-with-docs'
+        self.skill(legacy)
+        self.skill(self.home / '.agents/skills/workspace-hygiene')
+        with self.assertRaisesRegex(setup.SetupError, 'Existing skill was preserved'):
             self.apply()
+        self.assertTrue((legacy / 'SKILL.md').exists())
+        self.assertFalse((self.state.parent / 'backups').exists())
+
+    def test_failed_legacy_migration_restores_completed_moves(self):
+        legacy_root = self.home / '.codex/skills'
+        for name in ('grill-with-docs', 'implement-spec'):
+            self.skill(legacy_root / name)
+        original_move = shutil.move
+        calls = 0
+
+        def fail_second_move(source, target):
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                raise OSError('Simulated backup failure')
+            return original_move(source, target)
+
+        with patch.object(setup.shutil, 'move', side_effect=fail_second_move):
+            with self.assertRaisesRegex(setup.SetupError, 'Completed moves were restored'):
+                self.apply()
+        for name in ('grill-with-docs', 'implement-spec'):
+            self.assertTrue((legacy_root / name / 'SKILL.md').exists())
         self.assertFalse((self.home / '.agents').exists())
+        self.assertFalse(self.state.exists())
+        self.assertEqual(list((self.state.parent / 'backups').iterdir()), [])
+
+    def test_legacy_root_alias_is_not_migrated_repeatedly(self):
+        self.apply()
+        (self.home / '.codex/skills').symlink_to(self.home / '.agents/skills', target_is_directory=True)
+        before = self.state.read_bytes()
+        self.apply()
+        self.assertEqual(self.state.read_bytes(), before)
+        self.assertFalse((self.state.parent / 'backups').exists())
 
     def test_custom_codex_home_override_and_claude_preserve_existing_settings(self):
         custom = self.home / 'codex profile'
@@ -172,11 +250,22 @@ class SetupTests(unittest.TestCase):
         # without touching the caller's home or reaching a network service.
         real_repo = Path(__file__).resolve().parents[1]
         installer = real_repo / 'setup.py'
+        # Reproduce an already populated work laptop using every skill in the
+        # real snapshot, including local edits that must survive migration.
+        upstream = sorted((real_repo / 'vendor/matt-pocock/skills').iterdir())
+        for skill in upstream:
+            self.skill(self.home / '.codex/skills' / skill.name)
+            (self.home / '.codex/skills' / skill.name / 'local.txt').write_text('My local changes.')
         with patch.dict(os.environ, {'XDG_STATE_HOME': str(self.home / 'state')}):
             command = [sys.executable, str(installer), '--offline', '--environment', 'wsl']
             first = subprocess.run(command, text=True, capture_output=True, env=os.environ)
             self.assertEqual(first.returncode, 0, first.stderr)
             self.assertIn('Ready (wsl)', first.stdout)
+            state = json.loads((self.home / 'state/agent-skills/install.json').read_text())
+            backup = Path(state['legacy_backups'][0])
+            for skill in upstream:
+                self.assertFalse(os.path.lexists(self.home / '.codex/skills' / skill.name))
+                self.assertEqual((backup / skill.name / 'local.txt').read_text(), 'My local changes.')
             link = self.home / '.agents/skills/outlook-local'
             self.assertEqual(link.resolve(), real_repo / 'skills/outlook-local')
             second = subprocess.run(command[:-2], text=True, capture_output=True, env=os.environ)

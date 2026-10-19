@@ -155,6 +155,40 @@ def atomic_write(path, text):
         Path(filename).unlink(missing_ok=True)
 
 
+def backup_legacy(paths, state_dir):
+    """Move superseded Codex installs outside discovery, retaining local edits."""
+    if not paths:
+        return None
+    backup_root = state_dir / 'backups'
+    backup_root.mkdir(parents=True, exist_ok=True)
+    backup = Path(tempfile.mkdtemp(prefix='legacy-codex-skills-', dir=backup_root))
+    print(f'Backing up {len(paths)} legacy skills to {backup}', flush=True)
+    moved = []
+    try:
+        for original in paths:
+            saved = backup / original.name
+            shutil.move(str(original), str(saved))
+            moved.append((original, saved))
+    except (OSError, KeyboardInterrupt) as error:
+        rollback_errors = []
+        for original, saved in reversed(moved):
+            try:
+                if os.path.lexists(original):
+                    raise OSError(f'Original path is now occupied: {original}')
+                shutil.move(str(saved), str(original))
+            except OSError as rollback_error:
+                rollback_errors.append(str(rollback_error))
+        if rollback_errors:
+            detail = '; '.join(rollback_errors)
+            raise SetupError(f'Legacy migration stopped: {error}. '
+                             f'Some backups still need restoring from {backup}: {detail}') from error
+        if not any(backup.iterdir()):
+            backup.rmdir()
+        raise SetupError(f'Legacy migration stopped: {error}. '
+                         f'Completed moves were restored; any incomplete copies are under {backup}.') from error
+    return backup
+
+
 def apply(repo, home, state_file, previous, env, claude):
     sources = desired_skills(repo, env)
     roots = [home / '.agents/skills']
@@ -168,13 +202,14 @@ def apply(repo, home, state_file, previous, env, claude):
             continue
         if os.path.lexists(dest):
             conflicts.append(f'Existing skill was preserved: {dest}')
-    # Codex also supports the older user directory. Do not silently install a
-    # second copy with the same name beside an existing legacy installation.
+    # Retire only names supplied by this checkout. Keep the old payload outside
+    # discovery, including local edits; bundled and unrelated skills stay put.
     codex_home = Path(os.environ.get('CODEX_HOME') or home / '.codex').expanduser()
+    legacy_paths = []
     for name in sources:
         legacy = codex_home / 'skills' / name
-        if os.path.lexists(legacy):
-            conflicts.append(f'Legacy skill would be duplicated: {legacy}')
+        if os.path.lexists(legacy) and not any(legacy.parent.resolve() == root.resolve() for root in roots):
+            legacy_paths.append(legacy)
 
     override = codex_home / 'AGENTS.override.md'
     codex_doc = override if override.is_file() and override.stat().st_size else codex_home / 'AGENTS.md'
@@ -207,6 +242,10 @@ def apply(repo, home, state_file, previous, env, claude):
     if conflicts:
         raise SetupError('\n'.join(conflicts) + '\nNo skills or instructions were changed.')
 
+    backups = list(previous.get('legacy_backups', []))
+    backup = backup_legacy(legacy_paths, state_file.parent)
+    if backup:
+        backups.append(str(backup))
     created = 0
     # Record literal link targets, including existing equivalent indirect links,
     # so cleanup later only removes links we can still identify as our own.
@@ -223,6 +262,8 @@ def apply(repo, home, state_file, previous, env, claude):
     for dest in removals:
         dest.unlink()
     state = {'repository': str(repo), 'environment': env, 'claude': claude, 'links': installed}
+    if backups:
+        state['legacy_backups'] = backups
     serialized = json.dumps(state, indent=2, sort_keys=True) + '\n'
     if not state_file.exists() or state_file.read_text(encoding='utf-8') != serialized:
         atomic_write(state_file, serialized)

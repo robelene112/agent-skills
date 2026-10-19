@@ -133,12 +133,21 @@ gebruik deze optie niet om een updateconflict stilzwijgend te omzeilen.
 
 Bestaande instructies blijven buiten een herkenbaar beheerd blok behouden.
 Codex' `CODEX_HOME` en een actief `AGENTS.override.md` worden gerespecteerd.
-Skillconflicten worden vooraf gemeld zonder bestaande skills of instructies te
-overschrijven. Een vuile broncheckout, eigen commits, afwijkende upstream of
-mislukte fetch stopt de update. Het script bewaart lokale installatiestatus en
-een proceslock onder `${XDG_STATE_HOME:-~/.local/state}/agent-skills/`. De lock
-voorkomt twee gelijktijdige uitvoeringen van dit script; voer het niet uit
-terwijl een andere agent de broncheckout bewerkt.
+Oude Codex-skills onder `~/.codex/skills/` of je eigen `CODEX_HOME` met dezelfde
+naam als een te installeren skill worden automatisch gemigreerd: de bestaande
+map, het bestand of de link verhuist naar een unieke backupmap buiten de actieve
+skills-mappen. Lokale aanpassingen blijven in die backup behouden. De installer
+toont de locatie en bewaart haar in de installatiestatus. Codex' `.system/` en
+skills die deze repository niet levert blijven op hun plek. Herhaald uitvoeren
+maakt geen nieuwe backup zolang er geen nieuwe oude installatie bij is gekomen.
+
+Andere skillconflicten worden vooraf gemeld zonder bestaande skills of
+instructies te overschrijven. Een vuile broncheckout, eigen commits, afwijkende
+upstream of mislukte fetch stopt de update. Het script bewaart installatiestatus,
+backups en een proceslock onder
+`${XDG_STATE_HOME:-~/.local/state}/agent-skills/`. De lock voorkomt twee
+gelijktijdige uitvoeringen van dit script; voer het niet uit terwijl een andere
+agent de broncheckout bewerkt.
 
 Als `~/.claude/` bestaat, configureert het script ook Claude Code vanuit dezelfde
 bron. `--claude` activeert dat ook bij een eerste installatie. Andere agents
@@ -160,9 +169,9 @@ GitHub haalt de Matt Pocock-updates automatisch op. Agents gebruiken bij
 sessiestart het setup/update-script volgens `proactive-updates`, zodat naast
 gewijzigde skillinhoud ook nieuwe links en globale instructies worden bijgewerkt.
 Dit gebeurt tijdens een agentsessie; er is geen lokale timer ingericht. De
-VPS-notitie hoort niet op de laptops geactiveerd te worden. Een eventuele oude
-gekopieerde skill vraagt eenmalige beoordeling voordat de installer haar door
-een gedeelde link kan vervangen.
+VPS-notitie hoort niet op de laptops geactiveerd te worden. De backups van oude
+Codex-installaties blijven lokaal beschikbaar om eventuele persoonlijke
+aanpassingen terug te vinden; ze worden niet naar GitHub gestuurd.
 
 ## Matt Pocock bijwerken
 
