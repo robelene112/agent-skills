@@ -5,8 +5,9 @@ Windows host. The public repository holds generic instructions, helpers and
 synthetic tests. The host, Windows user, profile, stores and mail identifiers are
 discovered at runtime. Do not put actual mail or account configuration here.
 
-The user reported a working Windows/WSL COM route and verified the host on
-2026-10-19. The actual new helper still needs a laptop acceptance run; see
+On 2026-10-19 the user confirmed the installed helper's probe, a date-bounded
+unread search, and a full-body read of an existing unread message. The message
+remained unread without a repair, and no issues were reported. See
 [usage and evidence](../../skills/outlook-local/references/usage.md).
 
 ## Activate on the laptop

@@ -12,7 +12,7 @@ kopie van Matt Pococks volledige stabiele skillset:
 | Bestanden en werkaantekeningen | [workspace-hygiene](skills/workspace-hygiene/SKILL.md) | Intern onderzoek blijft in de sessie of tijdelijke opslag; blijvende bestanden hebben een duidelijk doel |
 | Tracker voor ontwikkeling | [github-issues](skills/github-issues/SKILL.md) | Nieuwe tickets en trackerspecificaties zijn GitHub Issues |
 | Programmeerregels | [development-preferences](skills/development-preferences/SKILL.md) | Geen cyberwerk met beperkte toegang; verzorgde UI met SVG- of CSS-iconen |
-| Lokale Outlook-mail | [outlook-local](skills/outlook-local/SKILL.md) | Alleen Windows/WSL met klassiek Outlook; nieuwe helper nog op laptop te valideren |
+| Lokale Outlook-mail | [outlook-local](skills/outlook-local/SKILL.md) | Windows/WSL met klassiek Outlook; zoeken en volledig lezen live getest, ongelezenstatus bleef behouden |
 | Actief letten op updates | [proactive-updates](skills/proactive-updates/SKILL.md) | Globale onderhoudsaandacht tijdens software- en omgevingswerk |
 | Globale instructie-ingang | [AGENTS.md](instructions/global/AGENTS.md) | Laadt de persoonlijke regels |
 | VPS-opslag | [Storage](environments/vps/STORAGE.md) | Alleen voor de VPS; `/` en `/mnt/storage` |

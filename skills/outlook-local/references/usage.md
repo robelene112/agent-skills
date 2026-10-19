@@ -112,19 +112,27 @@ Reading already-read items preserved their status and checked metadata.
 Multiple separate PowerShell processes could attach to the existing session.
 Store/item counts and observed dates are snapshots, not expected values.
 
-These probes used earlier ad hoc commands, **not this new bundled helper**.
-The repository tests cover fake Outlook objects and helper behavior; they do not
-establish live COM compatibility. Before marking this helper laptop-validated:
+These earlier probes used ad hoc commands. After installing the bundled helper
+and the Windows-local copy fix, the user reported successful laptop acceptance
+on 2026-10-19: probe discovered the attached store and visible folder tree with
+no issues; a date-bounded unread search completed across the discovered mail
+folders; one existing unread message was fully read and its flag remained true
+before and after. No unread restoration or errors were reported. This validates
+the basic probe/search/plain-text read route on that laptop, not server history
+completeness or every filter and folder combination. Counts are snapshots and
+no account identifiers or mail content belong in this public evidence record.
 
-- Run probe/search/read from the installed skill in a fresh laptop Codex session.
-- Read an actually unread message, verify it remains unread, and confirm no
-  unexpected saves or metadata changes on an ordinary read. Do not change a
+The live test did not exercise the repair branch, because the unread flag stayed
+unchanged. Repair/failure behavior has synthetic test coverage. Further live
+checks, when relevant to real use:
+
+- Confirm modification/save metadata on ordinary reads. Do not change a
   message's status merely to manufacture a test without David's instruction.
 - Compare known subject, sender, date and body results across folder types,
   including Deleted/Junk, with Outlook. Check timestamps and result limits.
 - Validate multiple/attached shared/archive stores when they are available;
   the earlier laptop had only one attached store.
-- Check Unicode, full body, HTML and repeated ID retrieval with the new helper.
+- Check Unicode, HTML and repeated ID retrieval with the new helper.
 - Observe no-active-Outlook, policy/prompt, timeout and offline behavior when
   those conditions naturally occur or a controlled test is agreed. Do not close
   the user's Outlook, disable protections or manufacture message mutations.
@@ -137,7 +145,7 @@ After David enabled CurrentUser `RemoteSigned`, the WSL network path was still
 rejected as unsigned. This led to Windows-local installation. Windows CI checks
 the installer with synthetic files, including cache hashes, Unicode paths,
 execution under `RemoteSigned`, and preservation/enforcement of a download
-marker. The updated helper still needs its live laptop probe.
+marker. The installed helper's later laptop acceptance is recorded above.
 
 ## Primary sources
 
