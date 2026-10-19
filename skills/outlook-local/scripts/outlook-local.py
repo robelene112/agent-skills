@@ -102,7 +102,7 @@ def main():
             command.add_argument('--max-folders', type=int, default=2000)
         if action == 'search':
             command.add_argument('--unread-only', action='store_true')
-            for flag in ('subject', 'sender', 'body', 'received-after', 'received-before', 'store-id', 'folder-contains'):
+            for flag in ('subject', 'sender', 'participant', 'body', 'received-after', 'received-before', 'store-id', 'folder-contains'):
                 command.add_argument('--' + flag)
             command.add_argument('--max-candidates', type=int, default=2000)
             command.add_argument('--limit', type=int, default=50)

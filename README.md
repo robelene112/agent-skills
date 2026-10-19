@@ -160,7 +160,14 @@ en [Claude-geheugen](https://code.claude.com/docs/en/memory).
 De Outlook-skill wordt afzonderlijk geactiveerd in de Windows/WSL-omgeving met
 klassiek Outlook. Zie [lokale Outlook-installatie](environments/windows-wsl/OUTLOOK.md).
 De standaard omvat alle gekoppelde mailboxen en toegankelijke mailmappen,
-inclusief spam en verwijderde items. De helper leest en zoekt, controleert de
+inclusief spam en verwijderde items. Op WSL activeert de globale ingang de skill
+bij sessiestart: agents lezen tijdens actieve sessies proactief nieuwe mail en
+melden relevante acties, deadlines en urgentie. Voor projectwerk lezen zij eerst
+vrijwel alle relevante correspondentie rond het project en de contactpersonen,
+ook gelezen, verzonden en oudere berichten. Zoeken op `--participant` neemt zowel
+afzender als ontvangers mee. Een lokale controlecursor voorkomt onnodig herhalen
+van de algemene mailcheck; die is geen historische grens voor projectcontext.
+Dit stelt geen timer of achtergrondtaak in. De helper leest en zoekt, controleert de
 ongelezenstatus en herstelt die alleen wanneer een oorspronkelijk ongelezen
 bericht tijdens het lezen toch als gelezen is gemarkeerd. Gewone leesacties
 slaan niets op. De VPS-installatie krijgt deze lokale Windows-capaciteit niet.

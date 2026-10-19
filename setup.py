@@ -121,7 +121,12 @@ def desired_skills(repo, env):
 
 def global_guidance(repo, env):
     text = (repo / 'instructions/global/AGENTS.md').read_text(encoding='utf-8').rstrip()
-    if env == 'vps':
+    if env == 'wsl':
+        text += ('\n\nAt the start of each agent session on this Windows/WSL machine, read and apply\n'
+                 '`~/.agents/skills/outlook-local/SKILL.md`. Proactively read mail during\n'
+                 'active sessions and gather the project/contact mail history before\n'
+                 'project-specific work, following that skill. Preserve unread status.\n')
+    elif env == 'vps':
         text += ('\n\nFor disk-space decisions, large artifacts or filesystem work on this VPS,\n'
                  f'read `{repo}/environments/vps/STORAGE.md` and verify the actual mounts.\n')
     return text

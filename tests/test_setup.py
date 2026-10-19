@@ -75,6 +75,7 @@ class SetupTests(unittest.TestCase):
         self.apply('wsl')
         root = self.home / '.agents/skills'
         self.assertTrue((root / 'outlook-local').is_symlink())
+        self.assertIn('~/.agents/skills/outlook-local/SKILL.md', (self.home / '.codex/AGENTS.md').read_text())
         self.assertFalse((root / 'saito-dev').exists())
         self.assertFalse((root / 'odoo-20').exists())
         unrelated = root / 'my-local-skill'
@@ -84,6 +85,7 @@ class SetupTests(unittest.TestCase):
         self.apply('vps')
         self.assertFalse(os.path.lexists(root / 'implement-spec'))
         self.assertFalse(os.path.lexists(root / 'outlook-local'))
+        self.assertNotIn('~/.agents/skills/outlook-local/SKILL.md', (self.home / '.codex/AGENTS.md').read_text())
         self.assertTrue((root / 'new-stable-skill').is_symlink())
         self.assertTrue((unrelated / 'SKILL.md').exists())
         self.assertIn('environments/vps/STORAGE.md', (self.home / '.codex/AGENTS.md').read_text())

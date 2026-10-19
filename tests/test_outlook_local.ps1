@@ -20,6 +20,11 @@ public class FakeMail {
     public object UnRead;
     public bool Saved = true, MarkReadOnBody, ThrowOnBody, FailSave;
     public FakeAddress Sender;
+    private FakeRecipients recipients = new FakeRecipients();
+    public bool MarkReadOnRecipients;
+    public FakeRecipients Recipients {
+        get { if (MarkReadOnRecipients) UnRead = false; return recipients; }
+    }
     public int Saves;
     public FakeFolder Parent;
     public string Text = "needle";
@@ -38,6 +43,27 @@ public class FakeMail {
 }
 public class FakeExchange {
     public string PrimarySmtpAddress = "sender@example.invalid";
+}
+public class FakeRecipientAccessor {
+    public bool Fail;
+    public string Smtp = "contact@example.invalid";
+    public string GetProperty(string name) {
+        if (Fail) throw new InvalidOperationException("Synthetic recipient lookup failure");
+        return Smtp;
+    }
+}
+public class FakeRecipient {
+    public string Name = "Project Contact", Address = "contact@example.invalid";
+    public int Type = 1;
+    public FakeRecipientAccessor PropertyAccessor = new FakeRecipientAccessor();
+}
+public class FakeRecipients {
+    public List<FakeRecipient> Values = new List<FakeRecipient>();
+    public bool Fail;
+    public int Count {
+        get { if (Fail) throw new InvalidOperationException("Synthetic recipients unavailable"); return Values.Count; }
+    }
+    public FakeRecipient Item(int index) { return Values[index - 1]; }
 }
 public class FakeAddress {
     public bool Fail, NoAddress;
@@ -316,6 +342,51 @@ Invoke-Case 'unknown unread state prevents body access and saves' {
     try { [void](Invoke-OutlookRequest $app 'read' @{entry_id = 'Inbox'; store_id = 'synthetic-a'}) }
     catch { $failed = $_.Exception.Message.Contains('unread status') }
     Assert-True ($failed -and $mail.Saves -eq 0) 'Unknown unread state was silently treated as read'
+}
+
+Invoke-Case 'participant search includes received, sent and copied correspondence' {
+    $app = New-Fixture
+    $incoming = $app.Session.GetItemFromID('Inbox', 'synthetic-a')
+    $incoming.SenderEmailAddress = 'contact@example.invalid'
+    $outgoing = $app.Session.GetItemFromID('Project', 'synthetic-a')
+    $outgoing.Recipients.Values.Add((New-Object FakeRecipient))
+    $copied = $app.Session.GetItemFromID('Junk Email', 'synthetic-b')
+    $cc = New-Object FakeRecipient
+    $cc.Type = 2
+    $copied.Recipients.Values.Add($cc)
+    $result = Invoke-OutlookRequest $app 'search' @{participant = 'contact@example.invalid'}
+    Assert-True ($result.messages.Count -eq 3 -and $result.search_complete_in_outlook_data) 'Contact correspondence was missed'
+    $result = Invoke-OutlookRequest $app 'search' @{participant = 'contact@example.invalid'; subject = 'tracker Inbox'}
+    Assert-True ($result.messages.Count -eq 1) 'Participant did not combine with subject using AND'
+    $read = Invoke-OutlookRequest $app 'read' @{entry_id = 'Project'; store_id = 'synthetic-a'}
+    Assert-True ($read.message.recipients.Count -eq 1 -and $read.message.recipients[0].email -eq 'contact@example.invalid') 'Read lost recipient context'
+    Assert-True ($outgoing.UnRead -and $outgoing.Saves -eq 0) 'Recipient lookup changed normal read state'
+}
+
+Invoke-Case 'Exchange recipient lookup and failures retain honest coverage' {
+    $app = New-Fixture
+    $mail = $app.Session.GetItemFromID('Project', 'synthetic-a')
+    $recipient = New-Object FakeRecipient
+    $recipient.Address = '/synthetic/exchange/contact'
+    $mail.Recipients.Values.Add($recipient)
+    $result = Invoke-OutlookRequest $app 'search' @{participant = 'contact@example.invalid'}
+    Assert-True ($result.messages.Count -eq 1 -and $result.search_complete_in_outlook_data) 'Exchange recipient SMTP matching failed'
+    $recipient.PropertyAccessor.Fail = $true
+    $result = Invoke-OutlookRequest $app 'search' @{participant = 'Project Contact'}
+    Assert-True ($result.messages.Count -eq 1 -and -not $result.search_complete_in_outlook_data) 'Display-name match or failure visibility was lost'
+    $mail.Recipients.Fail = $true
+    $result = Invoke-OutlookRequest $app 'search' @{participant = 'contact@example.invalid'}
+    Assert-True (-not $result.search_complete_in_outlook_data) 'Unavailable recipients claimed full coverage'
+}
+
+Invoke-Case 'participant lookup preserves the unread repair guarantee' {
+    $app = New-Fixture
+    $mail = $app.Session.GetItemFromID('Project', 'synthetic-a')
+    $mail.Recipients.Values.Add((New-Object FakeRecipient))
+    $mail.MarkReadOnRecipients = $true
+    $result = Invoke-OutlookRequest $app 'search' @{participant = 'contact@example.invalid'}
+    Assert-True ($result.messages.Count -eq 1 -and $mail.UnRead -and $mail.Saves -eq 1) 'Recipient lookup lost unread state'
+    Assert-True ($result.unread_restorations -eq 1 -and $result.messages[0].unread_restored) 'Recipient repair was not reported'
 }
 
 Write-Host ("All $script:passed Outlook cases passed using synthetic data.")

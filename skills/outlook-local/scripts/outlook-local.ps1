@@ -135,6 +135,37 @@ function Get-ClippedText([string]$Text, [int]$Limit) {
     return @{text = $Text.Substring(0, $take); characters = $length; truncated = ($take -lt $length)}
 }
 
+function Get-OutlookRecipients($Item, [string]$Path, $Context) {
+    try {
+        $recipients = Get-OutlookValue $Item 'Recipients'
+        $count = [int](Get-OutlookValue $recipients 'Count')
+    } catch {
+        Add-OutlookIssue $Context 'recipients_unavailable' $Path $_.Exception.Message
+        return
+    }
+    for ($i = 1; $i -le $count; $i++) {
+        if (-not (Test-OutlookBudget $Context)) { return }
+        try {
+            $recipient = $recipients.Item($i)
+            $name = [string](Get-OutlookValue $recipient 'Name')
+            $email = [string](Get-OutlookValue $recipient 'Address')
+            if ($email -notmatch '@') {
+                try {
+                    $accessor = Get-OutlookValue $recipient 'PropertyAccessor'
+                    $smtp = [string]$accessor.GetProperty('http://schemas.microsoft.com/mapi/proptag/0x39FE001E')
+                    if ($smtp -notmatch '@') { throw 'The recipient SMTP address was unavailable.' }
+                    $email = $smtp
+                } catch {
+                    # Keep display-name/raw-address matching possible while
+                    # reporting that SMTP address coverage is incomplete.
+                    Add-OutlookIssue $Context 'recipient_resolution_failed' $Path $_.Exception.Message
+                }
+            }
+            [pscustomobject]@{name = $name; email = $email; type = [int](Get-OutlookValue $recipient 'Type')}
+        } catch { Add-OutlookIssue $Context 'recipient_unavailable' $Path $_.Exception.Message }
+    }
+}
+
 function Get-OutlookMail($Item, [string]$StoreId, [string]$Path, $Options, $Context, [bool]$IncludeBody) {
     if ([int](Get-OutlookValue $Item 'Class') -ne 43) { return $null }
     $beforeUnread = Get-OutlookUnread $Item
@@ -169,6 +200,21 @@ function Get-OutlookMail($Item, [string]$StoreId, [string]$Path, $Options, $Cont
         if ($Options.ContainsKey('unread_only') -and $Options.unread_only -and -not $beforeUnread) { $isMatch = $false }
         if ($null -ne $Context.after -and $received -lt $Context.after) { $isMatch = $false }
         if ($null -ne $Context.before -and $received -ge $Context.before) { $isMatch = $false }
+        $participant = Get-TextOption $Options 'participant'
+        $recipients = @()
+        if ($IncludeBody -or ($isMatch -and $participant)) {
+            $recipients = @(Get-OutlookRecipients $Item $Path $Context)
+        }
+        if ($isMatch -and $participant) {
+            $participantMatch = (Test-LiteralContains $senderName $participant) -or (Test-LiteralContains $senderEmail $participant)
+            foreach ($recipient in $recipients) {
+                if ((Test-LiteralContains $recipient.name $participant) -or (Test-LiteralContains $recipient.email $participant)) {
+                    $participantMatch = $true
+                    break
+                }
+            }
+            $isMatch = $participantMatch
+        }
         $body = ''
         $bodyTerm = Get-TextOption $Options 'body'
         if ($isMatch -and ($IncludeBody -or $bodyTerm)) {
@@ -182,6 +228,7 @@ function Get-OutlookMail($Item, [string]$StoreId, [string]$Path, $Options, $Cont
                 received_utc = $received.ToString('o'); unread_before = $beforeUnread
                 unread_after = $null; unread_restored = $false
             }
+            if ($IncludeBody -or $participant) { $result | Add-Member NoteProperty recipients $recipients }
             if ($IncludeBody) {
                 $limit = Get-NumberOption $Options 'body_chars' 8000 0 1000000
                 $result | Add-Member NoteProperty body (Get-ClippedText $body $limit)
@@ -215,7 +262,7 @@ function Get-OutlookMail($Item, [string]$StoreId, [string]$Path, $Options, $Cont
 
 function Invoke-OutlookRequest($Application, [string]$Operation, [hashtable]$Options) {
     $allowed = @('max_folders', 'budget_seconds', 'store_id', 'folder_contains')
-    if ($Operation -eq 'search') { $allowed += @('subject', 'sender', 'body', 'received_after', 'received_before', 'max_candidates', 'limit', 'offset', 'unread_only') }
+    if ($Operation -eq 'search') { $allowed += @('subject', 'sender', 'participant', 'body', 'received_after', 'received_before', 'max_candidates', 'limit', 'offset', 'unread_only') }
     if ($Operation -eq 'read') { $allowed += @('entry_id', 'body_chars', 'html') }
     if ($Operation -notin @('probe', 'search', 'read')) { throw 'Unknown operation' }
     foreach ($key in $Options.Keys) { if ($key -notin $allowed) { throw "Unknown option: $key" } }

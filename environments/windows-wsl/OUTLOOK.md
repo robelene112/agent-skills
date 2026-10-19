@@ -28,8 +28,21 @@ python3 ~/.agents/skills/outlook-local/scripts/outlook-local.py probe
 The installer preserves existing configuration and stops on skill conflicts.
 It also configures Claude Code when `~/.claude/` already exists or `--claude`
 is supplied. Start a new agent session to load the global instructions. The
-Outlook skill does not need to be loaded for every task; its description selects
-Outlook mail requests. Setup does not start Outlook or read mail.
+setup adds a Windows/WSL startup instruction that loads the Outlook skill at
+the start of each agent session. Setup itself does not start Outlook or read mail.
+
+## Proactive use during sessions
+
+During active agent sessions, proactively read new mail and surface relevant
+actions, deadlines or urgency. Before project work, gather virtually all relevant
+mail about the project and contact persons, including read and sent messages and
+older correspondence. Use the [context workflow](../../skills/outlook-local/references/proactive-context.md)
+for search coverage, reuse and the local check cursor. Recipients as well as
+senders can be searched with `--participant`, so sent mail is included.
+
+This permission applies to reading and the existing unread repair only. There is
+no periodic work outside an active agent session. The general recent-mail cursor
+does not impose a recent-date cutoff on project context.
 
 Keep this Windows/WSL capability off the VPS skill installation. The VPS can
 maintain its source, but cannot use the local Windows Outlook session through

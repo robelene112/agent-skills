@@ -94,6 +94,18 @@ class OutlookTransportTests(unittest.TestCase):
         self.assertNotIn('store_id', options)
         self.assertNotIn('folder_contains', options)
 
+    def test_participant_search_passes_contact_text_without_adding_recency_or_unread_filters(self):
+        participant = "O'Brien $(not executable)"
+        result = subprocess.CompletedProcess([], 0, b'{"ok":true,"messages":[]}', b'')
+        with patch.object(sys, 'argv', ['outlook-local.py', 'search', '--participant', participant]), \
+                patch.object(HELPER, 'invocation', return_value=['fake']) as build, \
+                patch.object(HELPER.subprocess, 'run', return_value=result), redirect_stdout(io.StringIO()):
+            self.assertEqual(HELPER.main(), 0)
+        options = build.call_args.args[1]
+        self.assertEqual(options['participant'], participant)
+        self.assertNotIn('received_after', options)
+        self.assertFalse(options['unread_only'])
+
     def test_timeout_never_claims_verified_unread_state(self):
         code, data, _ = self.invoke(['probe'], failure=subprocess.TimeoutExpired('fake', 40))
         self.assertEqual(code, 2)
