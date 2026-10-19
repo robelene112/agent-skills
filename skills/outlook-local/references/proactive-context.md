@@ -62,10 +62,33 @@ are insufficient.
    unrelated mail can be excluded after assessment.
 5. Use the resulting history to understand decisions, commitments, constraints,
    open questions, stakeholders and deadlines. Reuse that context during the
-   session and expand it when new evidence changes the scope. If coverage is
-   incomplete, say what was searched/read and what remains unavailable before
-   relying on the result. Never describe the local cache as complete server
-   history.
+   session and expand it when new evidence changes the scope. Never describe
+   the local cache as complete server history.
+
+## Completion and interruption
+
+Project mail is required preparation for the requested work. Complete this phase
+when the identified project/contact searches cover the accessible history and
+virtually all relevant matching messages have been read, with inaccessible
+sources distinguished from unfinished queries. Then give the final advice or
+ready-to-send draft. Another system's project records complement this context;
+successfully reading them does not complete the mail phase.
+
+A per-call time or candidate limit calls for another query, not the end of the
+assignment. With normal partial results, autonomously partition and continue as
+above until the accessible coverage is finished. Repeating the same broad query
+or only increasing its timeout is not a substitute for making progress through
+the remaining partitions. A warning about incomplete mail does not discharge
+the requirement to finish recoverable work. When David asks about a timeout,
+explain briefly and resume the unfinished context gathering in the same task.
+
+Pause mail work for a concrete access failure, unavailable Outlook, an unread
+verification failure, or another blocker that actually prevents progress. After
+a hard process timeout, verify the affected unread state before resuming. If
+the blocker cannot be resolved within the authorized scope, state what remains
+unread and why continuation is blocked; label any useful interim advice or draft
+as provisional. Continue independent work when possible. Follow David's explicit
+instruction if he narrows the context requirement or asks to stop.
 
 Keep message bodies, contact lists and search results in the session rather than
 creating project reports or a permanent mail archive. Preserve concrete project
