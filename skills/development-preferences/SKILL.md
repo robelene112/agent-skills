@@ -1,6 +1,6 @@
 ---
 name: development-preferences
-description: Apply David's programming preferences when planning, implementing, or reviewing software. Avoid cybersecurity work requiring restricted access and build polished interfaces with consistent application-wide design, SVG or CSS icons, and responsive motion. Applies across projects and machines.
+description: Apply David's development preferences when planning, implementing, or reviewing software. Prioritize user experience over developer convenience, build polished and consistent interfaces, and avoid cybersecurity work requiring restricted access. Applies across projects and machines.
 ---
 
 # Development Preferences
@@ -32,7 +32,25 @@ does not guarantee that all notices can be prevented. See the
 [official OpenAI guidance](https://learn.chatgpt.com/docs/cyber-safety) for the
 access distinction and false-positive limitation.
 
-## Rule 2: build polished, deliberate interfaces
+## Rule 2: user experience comes first
+
+Make user experience the primary decision criterion in planning, implementation
+and review. Favor UX over developer experience: David accepts substantially more
+development effort, implementation complexity and reduced developer convenience
+even for a marginal improvement in the user's experience. Handle that complexity
+in the implementation so the user's workflow stays effortless.
+
+Choose thoughtful defaults suited to the user's actual task. Minimize required
+setup, clicks, navigation and repeated input. Make the current state, relevant
+information, progress, results and next actions easy to understand at a glance.
+Evaluate the complete task flow, including the first-use experience and the
+default path, rather than only individual screens.
+
+Make the interface easy to control and visually appealing enough to feel like
+eye candy. Aim for the "dopamine" feeling David requests: satisfying interactions,
+immediate and clear feedback, visible progress and results, and polished visual
+details and motion that make using the application enjoyable. Apply the design
+and interaction requirements below consistently throughout the application.
 
 Match the surrounding UI and the application's established design language.
 Keep typography, spacing, hierarchy, color, component shapes, icons, interaction
@@ -57,6 +75,7 @@ blocking interaction until a transition finishes. Respect reduced-motion
 preferences with minimal or no motion.
 
 Preserve accessible controls, keyboard operation and focus states while styling
-them. When a preview is available, inspect the rendered result at the relevant
-screen sizes and interaction states before calling the UI finished. Keep the
-change focused on the interface being worked on.
+them. When a preview is available, exercise the default path and main user tasks,
+checking unnecessary steps, clarity and feedback alongside the rendered result
+at relevant screen sizes and interaction states before calling the UI finished.
+Keep the change focused on the interface being worked on.

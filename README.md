@@ -11,7 +11,7 @@ kopie van Matt Pococks volledige stabiele skillset:
 | Globale communicatieregels | [global-communication](skills/global-communication/SKILL.md) | Geen em dashes; vragen in de chat; tijdens een grill één vraag per keer |
 | Bestanden en werkaantekeningen | [workspace-hygiene](skills/workspace-hygiene/SKILL.md) | Intern onderzoek blijft in de sessie of tijdelijke opslag; blijvende bestanden hebben een duidelijk doel |
 | Tracker voor ontwikkeling | [github-issues](skills/github-issues/SKILL.md) | Nieuwe tickets en trackerspecificaties zijn GitHub Issues |
-| Programmeerregels | [development-preferences](skills/development-preferences/SKILL.md) | Geen cyberwerk met beperkte toegang; verzorgde UI met SVG- of CSS-iconen |
+| Programmeerregels | [development-preferences](skills/development-preferences/SKILL.md) | Gebruikerservaring boven developer experience, doordachte defaults en verzorgde UI; geen cyberwerk met beperkte toegang |
 | Lokale Outlook-mail | [outlook-local](skills/outlook-local/SKILL.md) | Windows/WSL met klassiek Outlook; zoeken en volledig lezen live getest, ongelezenstatus bleef behouden |
 | Actief letten op updates | [proactive-updates](skills/proactive-updates/SKILL.md) | Globale onderhoudsaandacht tijdens software- en omgevingswerk |
 | Globale instructie-ingang | [AGENTS.md](instructions/global/AGENTS.md) | Laadt de persoonlijke regels |
