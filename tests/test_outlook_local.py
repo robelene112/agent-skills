@@ -106,6 +106,57 @@ class OutlookTransportTests(unittest.TestCase):
         self.assertNotIn('received_after', options)
         self.assertFalse(options['unread_only'])
 
+    def test_project_terms_and_contacts_are_passed_as_one_union(self):
+        result = subprocess.CompletedProcess([], 0, b'{"ok":true,"messages":[]}', b'')
+        with patch.object(sys, 'argv', ['outlook-local.py', 'search', '--term', "O'Brien", '--term', 'project', '--contact', 'contact@example.invalid']), \
+                patch.object(HELPER, 'invocation', return_value=['fake']) as build, \
+                patch.object(HELPER.subprocess, 'run', return_value=result), redirect_stdout(io.StringIO()):
+            self.assertEqual(HELPER.main(), 0)
+        options = build.call_args.args[1]
+        self.assertEqual(options['terms'], ["O'Brien", 'project'])
+        self.assertEqual(options['contacts'], ['contact@example.invalid'])
+
+    def test_session_reuses_one_child_and_keeps_unicode_requests_as_data(self):
+        child = '''import json, os, sys
+print(json.dumps({'ok': True, 'ready': True}), flush=True)
+for line in sys.stdin:
+    request = json.loads(line)
+    print(json.dumps({'ok': True, 'pid': os.getpid(), 'request': request}), flush=True)
+    if request['action'] == 'close': break
+'''
+        requests = [
+            {'action': 'search', 'options': {'terms': ["O'Brien caf\u00e9 \U0001f600"]}},
+            {'action': 'read', 'options': {'store_id': 'fixture', 'entry_id': 'message'}},
+            {'action': 'close'},
+        ]
+        input_stream = io.StringIO('\n'.join(json.dumps(request) for request in requests) + '\n')
+        output = io.StringIO()
+        with patch.object(HELPER, 'invocation', return_value=[sys.executable, '-u', '-c', child]) as build, \
+                patch.object(sys, 'stdin', input_stream), redirect_stdout(output):
+            self.assertEqual(HELPER.session(10), 0)
+        data = [json.loads(line) for line in output.getvalue().splitlines()]
+        self.assertTrue(data[0]['ready'])
+        self.assertEqual(data[1]['pid'], data[2]['pid'])
+        self.assertEqual(data[1]['request']['options']['terms'], requests[0]['options']['terms'])
+        self.assertEqual(data[2]['request']['options']['budget_seconds'], 5)
+        build.assert_called_once_with('session', {})
+
+    def test_session_reports_child_failure_and_rejects_invalid_request_locally(self):
+        child = '''import json, sys
+print(json.dumps({'ok': True, 'ready': True}), flush=True)
+for line in sys.stdin:
+    print(json.dumps({'ok': False, 'error': 'fixture policy failure', 'unread_state_verified': False}), flush=True)
+    break
+'''
+        output = io.StringIO()
+        with patch.object(HELPER, 'invocation', return_value=[sys.executable, '-u', '-c', child]), \
+                patch.object(sys, 'stdin', io.StringIO('not JSON\n{"action":"probe"}\n')), redirect_stdout(output):
+            self.assertEqual(HELPER.session(10), 2)
+        data = [json.loads(line) for line in output.getvalue().splitlines()]
+        self.assertFalse(data[1]['ok'])
+        self.assertEqual(data[2]['error'], 'fixture policy failure')
+        self.assertFalse(data[2]['unread_state_verified'])
+
     def test_timeout_never_claims_verified_unread_state(self):
         code, data, _ = self.invoke(['probe'], failure=subprocess.TimeoutExpired('fake', 40))
         self.assertEqual(code, 2)

@@ -11,12 +11,14 @@ Add-Type -TypeDefinition @'
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 public class FakeMail {
     public int Class = 43;
     public string EntryID, Subject, SenderName = "Example sender", SenderEmailAddress = "sender@example.invalid";
     public string SenderEmailType = "SMTP", HTMLBody = "<p>example</p>";
     public DateTime ReceivedTime;
+    public DateTime LastModificationTime = new DateTime(2026, 10, 16, 10, 0, 0, DateTimeKind.Utc);
     public object UnRead;
     public bool Saved = true, MarkReadOnBody, ThrowOnBody, FailSave;
     public FakeAddress Sender;
@@ -25,11 +27,12 @@ public class FakeMail {
     public FakeRecipients Recipients {
         get { if (MarkReadOnRecipients) UnRead = false; return recipients; }
     }
-    public int Saves;
+    public int Saves, BodyReads;
     public FakeFolder Parent;
     public string Text = "needle";
     public string Body {
         get {
+            BodyReads++;
             if (MarkReadOnBody) UnRead = false;
             if (ThrowOnBody) throw new InvalidOperationException("Synthetic body failure");
             return Text;
@@ -60,8 +63,13 @@ public class FakeRecipient {
 public class FakeRecipients {
     public List<FakeRecipient> Values = new List<FakeRecipient>();
     public bool Fail;
+    public int DelayMilliseconds;
     public int Count {
-        get { if (Fail) throw new InvalidOperationException("Synthetic recipients unavailable"); return Values.Count; }
+        get {
+            if (DelayMilliseconds > 0) System.Threading.Thread.Sleep(DelayMilliseconds);
+            if (Fail) throw new InvalidOperationException("Synthetic recipients unavailable");
+            return Values.Count;
+        }
     }
     public FakeRecipient Item(int index) { return Values[index - 1]; }
 }
@@ -96,13 +104,49 @@ public class FakeFolders {
     public int Count { get { return Values.Count; } }
     public FakeFolder Item(int index) { return Values[index - 1]; }
 }
+public class FakeColumns {
+    public void RemoveAll() { }
+    public void Add(string name) { if (name != "EntryID") throw new Exception("Unexpected table column"); }
+}
+public class FakeRow {
+    private string id;
+    public FakeRow(string entry) { id = entry; }
+    public object[] GetValues() { return new object[] { id }; }
+}
+public class FakeTable {
+    private List<FakeMail> values;
+    private int cursor;
+    public FakeColumns Columns = new FakeColumns();
+    public bool EndOfTable { get { return cursor >= values.Count; } }
+    public FakeTable(List<FakeMail> messages) { values = messages; }
+    public FakeRow GetNextRow() { return new FakeRow(values[cursor++].EntryID); }
+}
 public class FakeFolder {
     public string EntryID, StoreID, FolderPath;
     public int DefaultItemType = 0;
     public FakeFolders Folders = new FakeFolders();
     public FakeItems Items = new FakeItems();
+    public bool FailTable;
+    public int TableCalls;
     public FakeFolder(string id, string store, string path) { EntryID = id; StoreID = store; FolderPath = path; }
     public void Add(FakeMail mail) { mail.Parent = this; Items.Messages.Add(mail); }
+    public FakeTable GetTable(string filter, int contents) {
+        TableCalls++;
+        Items.LastFilter = filter;
+        if (FailTable || Items.FailFilter) throw new InvalidOperationException("Synthetic table filter failure");
+        // A provider-side view uses stored text, without opening MailItem.Body.
+        var parts = Regex.Matches(filter, "\\\"urn:schemas:httpmail:(subject|textdescription)\\\" LIKE '((?:[^']|'')*)'");
+        var matches = Items.Messages.Where(mail => {
+            if (parts.Count == 0) return true;
+            var checks = parts.Cast<Match>().Select(part => {
+                string text = part.Groups[1].Value == "subject" ? mail.Subject : mail.Text;
+                string term = part.Groups[2].Value.Replace("''", "'").Trim('%');
+                return text.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0;
+            });
+            return filter.Contains(" OR ") ? checks.Any(value => value) : checks.All(value => value);
+        }).ToList();
+        return new FakeTable(matches);
+    }
 }
 public class FakeStore {
     public string StoreID, DisplayName;
@@ -323,7 +367,7 @@ Invoke-Case 'nonmatching body reads still repair unread state; failed search rep
     $app = New-Fixture
     $mail = $app.Session.GetItemFromID('Inbox', 'synthetic-a')
     $mail.MarkReadOnBody = $true
-    $result = Invoke-OutlookRequest $app 'search' @{body = 'absent phrase'}
+    $result = Invoke-OutlookRequest $app 'search' @{body = 'absent phrase'; engine = 'scan'}
     Assert-True ($mail.UnRead -and $mail.Saves -eq 1 -and $result.messages.Count -eq 0) 'Nonmatching body read lost unread state'
     Assert-True ($result.unread_restorations -eq 1) 'Repair on excluded candidate was not reported'
     $mail.FailSave = $true
@@ -387,6 +431,167 @@ Invoke-Case 'participant lookup preserves the unread repair guarantee' {
     $result = Invoke-OutlookRequest $app 'search' @{participant = 'contact@example.invalid'}
     Assert-True ($result.messages.Count -eq 1 -and $mail.UnRead -and $mail.Saves -eq 1) 'Recipient lookup lost unread state'
     Assert-True ($result.unread_restorations -eq 1 -and $result.messages[0].unread_restored) 'Recipient repair was not reported'
+}
+
+Invoke-Case 'native body filter prunes nonmatches without opening their bodies' {
+    $app = New-Fixture
+    $mail = $app.Session.GetItemFromID('Inbox', 'synthetic-a')
+    $mail.Text = "long text with O'Brien near the end"
+    $native = Invoke-OutlookRequest $app 'search' @{body = "O'Brien"}
+    Assert-True ($native.messages.Count -eq 1 -and $native.candidates_checked -eq 1) 'Table did not prune irrelevant mail'
+    Assert-True ($native.body_reads -eq 1 -and $native.engine.scan_folders -eq 0) 'Native search fetched unrelated bodies'
+    $other = $app.Session.GetItemFromID('Project', 'synthetic-a')
+    Assert-True ($other.BodyReads -eq 0) 'Nonmatching body was opened'
+    $scan = Invoke-OutlookRequest $app 'search' @{body = "O'Brien"; engine = 'scan'}
+    Assert-True ($scan.messages.Count -eq 1 -and $scan.body_reads -eq 10) 'Reference scanner did not examine the available bodies'
+    Assert-True ($native.messages[0].entry_id -eq $scan.messages[0].entry_id) 'Native and reference results differ'
+}
+
+Invoke-Case 'bundled terms and contacts form a union, retaining sent and wildcard matches' {
+    $app = New-Fixture
+    $app.Session.GetItemFromID('Inbox', 'synthetic-a').Text = 'first project'
+    $app.Session.GetItemFromID('nested-mail', 'synthetic-b').Text = 'second project'
+    $sent = $app.Session.GetItemFromID('Project', 'synthetic-a')
+    $sent.Recipients.Values.Add((New-Object FakeRecipient))
+    $options = @{terms = @('first project', 'second project'); contacts = @('contact@example.invalid')}
+    $result = Invoke-OutlookRequest $app 'search' $options
+    Assert-True ($result.messages.Count -eq 3 -and $result.search_complete_in_outlook_data) 'Bundled query lost term or recipient matches'
+    Assert-True ($result.body_reads -eq 9) 'Each candidate body should be read at most once and contacts need no search body'
+    $result = Invoke-OutlookRequest $app 'search' @{terms = @('first project', 'second project')}
+    Assert-True ($result.messages.Count -eq 2 -and $result.candidates_checked -eq 2) 'Term-only OR query was not pruned'
+    $sent.Text = 'literal 100%_value'
+    $result = Invoke-OutlookRequest $app 'search' @{terms = @('100%_', 'absent')}
+    Assert-True ($result.messages.Count -eq 1) 'Wildcard characters changed literal substring semantics'
+    $result = Invoke-OutlookRequest $app 'search' @{terms = @('first project', 'second project'); subject = 'Inbox'}
+    Assert-True ($result.messages.Count -eq 1) 'Existing subject constraint did not AND with the union'
+}
+
+Invoke-Case 'provider rejection falls back explicitly without dropping results' {
+    $app = New-Fixture
+    $app.Session.Stores.Item(1).Root.Folders.Item(1).FailTable = $true
+    $result = Invoke-OutlookRequest $app 'search' @{body = 'needle'}
+    Assert-True ($result.messages.Count -eq 10 -and $result.search_complete_in_outlook_data) 'Successful fallback lost coverage'
+    Assert-True ($result.engine.scan_folders -eq 1 -and $result.engine.fallbacks.Count -eq 1) 'Fallback route was not visible'
+}
+
+Invoke-Case 'session resumes candidate traversal and pages results without rescanning' {
+    $app = New-Fixture
+    $runtime = New-OutlookRuntime
+    $result = Invoke-OutlookRequest $app 'search' @{body = 'needle'; max_candidates = 3; limit = 2} $runtime
+    Assert-True ($result.continuation -and $result.messages.Count -eq 0 -and -not $result.search_complete_in_outlook_data) 'Partial session search needs a continuation, not a premature page'
+    $received = New-Object 'System.Collections.Generic.List[object]'
+    $calls = 0
+    do {
+        $result = Invoke-OutlookRequest $app 'search' @{continuation = $result.continuation; max_candidates = 3; limit = 2} $runtime
+        foreach ($message in $result.messages) { $received.Add($message) }
+        $calls++
+        Assert-True ($calls -lt 10) 'Continuation failed to make progress'
+    } while ($result.continuation)
+    Assert-True ($received.Count -eq 10 -and $result.candidates_checked_total -eq 10) 'Resume repeated or skipped candidates'
+    Assert-True ($result.search_complete_in_outlook_data -and $result.issues.Count -eq 0) 'A previous chunk limit contaminated completion'
+    Assert-True ($runtime.jobs.Count -eq 0) 'Finished query retained its continuation'
+    foreach ($store in $app.Session.Stores.Values) {
+        Assert-True ($store.Root.Folders.Item(1).TableCalls -eq 1) 'Paging restarted a folder query'
+        Assert-True ($store.Root.Folders.Item(1).Items.Messages[0].BodyReads -eq 1) 'Resume reread an inspected body'
+    }
+}
+
+Invoke-Case 'session caches versioned bodies and preserves live unread state' {
+    $app = New-Fixture
+    $runtime = New-OutlookRuntime
+    [void](Invoke-OutlookRequest $app 'probe' @{} $runtime)
+    $search = Invoke-OutlookRequest $app 'search' @{body = 'needle'} $runtime
+    Assert-True ($search.folder_discovery_reused -and $search.body_reads -eq 10) 'Session did not reuse folder discovery'
+    $options = @{entry_id = 'Inbox'; store_id = 'synthetic-a'; body_chars = 0}
+    $mail = $app.Session.GetItemFromID('Inbox', 'synthetic-a')
+    $mail.UnRead = $false
+    $read = Invoke-OutlookRequest $app 'read' $options $runtime
+    Assert-True ($read.body_reads -eq 0 -and $read.body_cache_hits -eq 1) 'Read reopened the cached body'
+    Assert-True (-not $read.message.unread_before -and -not $mail.UnRead -and $mail.Saves -eq 0) 'Cache replaced live unread state'
+    $mail.Text = 'updated body'; $mail.LastModificationTime = $mail.LastModificationTime.AddSeconds(1)
+    $read = Invoke-OutlookRequest $app 'read' $options $runtime
+    Assert-True ($read.message.body.text -eq 'updated body' -and $read.body_reads -eq 1) 'Modified body was served from stale cache'
+}
+
+Invoke-Case 'continuations reject changed filters and preserve genuine failures' {
+    $app = New-Fixture
+    $runtime = New-OutlookRuntime
+    $app.Session.GetItemFromID('Inbox', 'synthetic-a').ThrowOnBody = $true
+    $first = Invoke-OutlookRequest $app 'search' @{body = 'needle'; max_candidates = 1} $runtime
+    $failed = $false
+    try { [void](Invoke-OutlookRequest $app 'search' @{continuation = $first.continuation; body = 'different'} $runtime) } catch { $failed = $true }
+    Assert-True $failed 'Continuation accepted different search semantics'
+    $result = Invoke-OutlookRequest $app 'search' @{continuation = $first.continuation} $runtime
+    Assert-True (-not $result.search_complete_in_outlook_data -and $result.messages.Count -eq 9) 'Resuming hid a genuine read failure'
+    Assert-True (@($result.issues | Where-Object { $_.code -eq 'message_unavailable' }).Count -eq 1) 'Read failure was lost or duplicated'
+}
+
+Invoke-Case 'profile changes invalidate continuations and cached text' {
+    $app = New-Fixture
+    $runtime = New-OutlookRuntime
+    $first = Invoke-OutlookRequest $app 'search' @{body = 'needle'; max_candidates = 1} $runtime
+    $app.Session.CurrentProfileName = 'Another synthetic profile'
+    $failed = $false
+    try { [void](Invoke-OutlookRequest $app 'search' @{continuation = $first.continuation} $runtime) } catch { $failed = $true }
+    Assert-True ($failed -and $runtime.bodies.Count -eq 0) 'A profile change reused foreign cached data'
+}
+
+Invoke-Case 'compact session refs identify the same message across searches and reads' {
+    $app = New-Fixture
+    $runtime = New-OutlookRuntime
+    $native = Invoke-OutlookRequest $app 'search' @{body = 'needle'} $runtime
+    $scan = Invoke-OutlookRequest $app 'search' @{body = 'needle'; engine = 'scan'} $runtime
+    Assert-True (-not $native.ContainsKey('stores') -and $native.messages[0].PSObject.Properties.Name -notcontains 'store_id') 'Session repeated raw Outlook identifiers'
+    Assert-True ($native.messages[0].ref -eq $scan.messages[0].ref) 'A message ref changed between search routes'
+    $read = Invoke-OutlookRequest $app 'read' @{ref = $native.messages[0].ref; body_chars = 0} $runtime
+    Assert-True ($read.message.ref -eq $native.messages[0].ref -and $read.message.body.text -eq 'needle') 'Compact ref read the wrong message'
+    $other = New-OutlookRuntime
+    $failed = $false
+    try { [void](Invoke-OutlookRequest $app 'read' @{ref = $native.messages[0].ref} $other) } catch { $failed = $true }
+    Assert-True $failed 'A ref was accepted outside its originating session'
+}
+
+Invoke-Case 'JSON session protocol reuses discovery and ends on close or unread failure' {
+    $app = New-Fixture
+    $requests = @(
+        '{"action":"probe"}'
+        '{"action":"search","options":{"terms":["needle"]}}'
+        '{"action":"refresh"}'
+        '{"action":"probe"}'
+        '{"action":"close"}'
+        '{"action":"probe"}'
+    )
+    $reader = New-Object IO.StringReader([string]::Join("`n", $requests))
+    $writer = New-Object IO.StringWriter
+    Invoke-OutlookSession $app $reader $writer
+    $responses = @($writer.ToString().Trim().Split("`n") | ForEach-Object { $_ | ConvertFrom-Json })
+    Assert-True ($responses.Count -eq 6 -and $responses[0].ready) 'Session framing or close failed'
+    Assert-True $responses[2].folder_discovery_reused 'Session requests did not share state'
+    Assert-True (-not $responses[4].folder_discovery_reused) 'Refresh did not discard folder state'
+    $mail = $app.Session.GetItemFromID('Inbox', 'synthetic-a')
+    $mail.MarkReadOnBody = $true; $mail.FailSave = $true
+    $reader = New-Object IO.StringReader("{`"action`":`"read`",`"options`":{`"entry_id`":`"Inbox`",`"store_id`":`"synthetic-a`"}}`n{`"action`":`"probe`"}")
+    $writer = New-Object IO.StringWriter
+    Invoke-OutlookSession $app $reader $writer
+    $responses = @($writer.ToString().Trim().Split("`n") | ForEach-Object { $_ | ConvertFrom-Json })
+    Assert-True ($responses.Count -eq 2 -and -not $responses[1].ok -and -not $responses[1].unread_state_verified) 'Session continued after an unread repair failure'
+}
+
+Invoke-Case 'cooperative expiry finishes the current recipient list before resuming' {
+    $app = New-Fixture
+    $runtime = New-OutlookRuntime
+    [void](Invoke-OutlookRequest $app 'probe' @{} $runtime)
+    $mail = $app.Session.GetItemFromID('Inbox', 'synthetic-a')
+    $first = New-Object FakeRecipient
+    $first.Address = 'unrelated@example.invalid'
+    $last = New-Object FakeRecipient
+    $last.Address = 'final-contact@example.invalid'
+    $mail.Recipients.Values.Add($first); $mail.Recipients.Values.Add($last)
+    $mail.Recipients.DelayMilliseconds = 1100
+    $result = Invoke-OutlookRequest $app 'search' @{contacts = @('final-contact@example.invalid'); budget_seconds = 1} $runtime
+    Assert-True ($result.continuation -and -not $result.search_complete_in_outlook_data) 'Expiry did not preserve the search cursor'
+    $result = Invoke-OutlookRequest $app 'search' @{continuation = $result.continuation} $runtime
+    Assert-True ($result.search_complete_in_outlook_data -and $result.messages.Count -eq 1 -and $result.candidates_checked_total -eq 10) 'An unfinished recipient list silently lost a contact match'
 }
 
 Write-Host ("All $script:passed Outlook cases passed using synthetic data.")

@@ -7,9 +7,13 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import queue
 import shutil
 import subprocess
 import sys
+import threading
+import time
+from collections import deque
 
 
 def stage_windows_script(powershell, source, digest):
@@ -92,15 +96,104 @@ def invocation(action, options):
             '-Action', action, '-QueryBase64', encoded]
 
 
+def session(timeout):
+    """Relay JSON lines to one foreground helper; retain mail only in its memory."""
+    started = time.monotonic()
+    process = subprocess.Popen(invocation('session', {}), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE, text=True, encoding='utf-8', bufsize=1)
+    lines = queue.Queue()
+    errors = deque(maxlen=16)
+
+    def read_output():
+        try:
+            for line in process.stdout:
+                lines.put(line)
+        finally:
+            lines.put(None)
+
+    def read_errors():
+        for line in process.stderr:
+            errors.append(line[-1000:])
+
+    readers = [threading.Thread(target=read_output, daemon=True), threading.Thread(target=read_errors, daemon=True)]
+    for reader in readers:
+        reader.start()
+
+    def receive(seconds):
+        try:
+            line = lines.get(timeout=seconds)
+        except queue.Empty:
+            raise subprocess.TimeoutExpired('Outlook session helper', seconds) from None
+        if line is None:
+            readers[1].join(timeout=1)
+            raise RuntimeError('Outlook session ended without JSON. ' + ''.join(errors).strip())
+        data = json.loads(line.lstrip('\ufeff'))
+        if not isinstance(data, dict) or not isinstance(data.get('ok'), bool):
+            raise RuntimeError('Outlook session returned an invalid response.')
+        return data
+
+    try:
+        ready = receive(timeout)
+        if not ready.get('ok'):
+            print(json.dumps(ready, ensure_ascii=False), flush=True)
+            return 2
+        if ready.get('ready') is not True:
+            raise RuntimeError('Outlook helper did not confirm session startup.')
+        ready['startup_ms'] = round((time.monotonic() - started) * 1000, 1)
+        print(json.dumps(ready, ensure_ascii=False), flush=True)
+        for line in sys.stdin:
+            try:
+                request = json.loads(line)
+                if not isinstance(request, dict) or request.get('action') not in ('probe', 'search', 'read', 'refresh', 'close'):
+                    raise ValueError('Expected action probe, search, read, refresh or close.')
+                if set(request) - {'action', 'options', 'timeout'}:
+                    raise ValueError('Unexpected request fields.')
+                seconds = request.pop('timeout', timeout)
+                if isinstance(seconds, bool) or not isinstance(seconds, int) or not 5 <= seconds <= 180:
+                    raise ValueError('timeout must be an integer between 5 and 180.')
+                options = request.setdefault('options', {})
+                if not isinstance(options, dict):
+                    raise ValueError('options must be an object.')
+                options['budget_seconds'] = min(120, seconds - 5)
+            except (ValueError, TypeError) as exc:
+                print(json.dumps({'ok': False, 'error': str(exc)}), flush=True)
+                continue
+            # Escaped JSON keeps Unicode data intact across console code pages.
+            process.stdin.write(json.dumps(request, ensure_ascii=True) + '\n')
+            process.stdin.flush()
+            data = receive(seconds)
+            print(json.dumps(data, ensure_ascii=False), flush=True)
+            if not data['ok'] or request['action'] == 'close':
+                return 0 if data['ok'] else 2
+        return 0
+    finally:
+        # Kill only this helper, never the user's Outlook. EOF/close occurs
+        # between requests; a hard timeout still leaves unread state unverified.
+        if process.poll() is None:
+            process.stdin.close()
+            try:
+                process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait()
+        for reader in readers:
+            reader.join(timeout=1)
+        for stream in (process.stdin, process.stdout, process.stderr):
+            stream.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest='action', required=True)
-    for action in ('probe', 'search', 'read'):
+    for action in ('probe', 'search', 'read', 'session'):
         command = commands.add_parser(action)
         command.add_argument('--timeout', type=int, default=40, help='Client timeout in seconds (5-180).')
         if action in ('probe', 'search'):
             command.add_argument('--max-folders', type=int, default=2000)
         if action == 'search':
+            command.add_argument('--term', dest='terms', action='append', help='Repeat for an OR-union of subject/body terms and contacts.')
+            command.add_argument('--contact', dest='contacts', action='append', help='Repeat for contact names/addresses in the same union.')
+            command.add_argument('--engine', choices=('table', 'scan'), default='table', help='scan is the reference route for comparison.')
             command.add_argument('--unread-only', action='store_true')
             for flag in ('subject', 'sender', 'participant', 'body', 'received-after', 'received-before', 'store-id', 'folder-contains'):
                 command.add_argument('--' + flag)
@@ -119,6 +212,8 @@ def main():
     options = {key: value for key, value in args.items() if value is not None}
     options['budget_seconds'] = min(120, timeout - 5)
     try:
+        if action == 'session':
+            return session(timeout)
         result = subprocess.run(invocation(action, options), capture_output=True, timeout=timeout)
         try:
             output = result.stdout.decode('utf-8-sig').strip()
@@ -132,7 +227,7 @@ def main():
         return result.returncode or (0 if data.get('ok') else 2)
     except subprocess.TimeoutExpired:
         error = 'Outlook helper timed out. The operation is incomplete and final unread state was not verified. Do not terminate Outlook.'
-    except (OSError, RuntimeError, subprocess.CalledProcessError) as exc:
+    except (OSError, RuntimeError, ValueError, subprocess.CalledProcessError) as exc:
         error = str(exc)
     print(json.dumps({'ok': False, 'error': error, 'unread_state_verified': False}, ensure_ascii=False))
     return 2

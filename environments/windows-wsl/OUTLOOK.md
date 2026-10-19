@@ -39,6 +39,12 @@ mail about the project and contact persons, including read and sent messages and
 older correspondence. Use the [context workflow](../../skills/outlook-local/references/proactive-context.md)
 for search coverage, reuse and the local check cursor. Recipients as well as
 senders can be searched with `--participant`, so sent mail is included.
+For project work, prefer one foreground helper `session` with bundled `terms`
+and `contacts`, continuing with its returned token and reading through short
+message refs. It reuses folder discovery and versioned text in memory. Finish
+continuations before refreshing at a later check, and close the helper when
+mail work ends. The usage reference includes a first-use comparison with the
+reference scanner; the new native-filter performance is not yet live-measured.
 
 This permission applies to reading and the existing unread repair only. There is
 no periodic work outside an active agent session. The general recent-mail cursor

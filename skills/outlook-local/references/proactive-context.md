@@ -8,7 +8,8 @@ watcher, or weaken its access controls to run these checks.
 
 ## During an active session
 
-After the shared skills source has been synchronized, probe once and proactively
+After the shared skills source has been synchronized, open one foreground helper
+session, probe once through it, and proactively
 check newly arrived mail across all attached mailboxes and accessible mail
 folders. Read messages to identify useful context, requested actions, deadlines
 or urgency. Tell David about material findings and changes; a routine successful
@@ -43,18 +44,25 @@ are insufficient.
 1. Identify project names, aliases, codes, organizations, contact names and
    addresses from the request and maintained project context. Expand these as
    correspondence reveals other names, participants and related threads.
-2. Search project terms and contacts independently, then combine their results.
-   `--participant` matches sender or recipients, including sent mail and copied
+2. Bundle project aliases in `terms` and contacts in `contacts` in one session
+   search, taking their OR-union rather than scanning the mailbox separately for
+   every name and week. Terms match subject/body; contacts match sender or recipients,
+   including sent mail and copied
    recipients. Keep the full default mailbox/folder scope, including archives,
    Deleted Items and Junk when accessible. Use both read and unread mail and
    cover the available history without a fixed recent-date cutoff. The helper
-   combines different flags with AND, so one narrow combined query cannot
-   replace the union of project, subject/body and contact searches.
-3. Follow `next_offset` until all results are retrieved. On candidate/time limits,
-   partition the remaining history by date or folder and continue across those
-   partitions. Increasing a bound is valid when practical. A completed page is
+   combines the older individual filter flags with AND; use the new union for
+   independent project/contact matches.
+3. Follow `continuation` in the same helper session until it is null, then verify
+   `search_complete_in_outlook_data` and `issues`. It resumes candidate traversal
+   after a cooperative limit and pages stored matches without rescanning. A
+   partial session scan returns no message page until traversal is finished.
+   Use smaller date/folder partitions only if a one-shot call is necessary or a
+   provider cannot complete its filter within a hard process timeout. A completed page is
    not a completed search, and a partial empty result does not prove absence.
-4. Read complete relevant bodies using `read --body-chars 0`. Follow connected
+4. Read complete relevant bodies with session `read` requests using the returned
+   `ref` and `body_chars: 0`. Bodies already checked during search can be reused
+   in memory, with modification timestamps and live unread checks. Follow connected
    threads and both sides of the conversation. Deduplicate repeated messages
    and quoted text without losing distinct statements, corrections or changed
    agreements. Inspect ambiguous matches rather than excluding a contact's
@@ -74,9 +82,9 @@ sources distinguished from unfinished queries. Then give the final advice or
 ready-to-send draft. Another system's project records complement this context;
 successfully reading them does not complete the mail phase.
 
-A per-call time or candidate limit calls for another query, not the end of the
-assignment. With normal partial results, autonomously partition and continue as
-above until the accessible coverage is finished. Repeating the same broad query
+A per-call time or candidate limit calls for continuing the query. With normal
+partial results, autonomously follow the same session's continuation as above
+until accessible coverage is finished. Repeating the same broad query
 or only increasing its timeout is not a substitute for making progress through
 the remaining partitions. A warning about incomplete mail does not discharge
 the requirement to finish recoverable work. When David asks about a timeout,
@@ -89,6 +97,11 @@ the blocker cannot be resolved within the authorized scope, state what remains
 unread and why continuation is blocked; label any useful interim advice or draft
 as provisional. Continue independent work when possible. Follow David's explicit
 instruction if he narrows the context requirement or asks to stop.
+
+At later task boundaries, use `refresh` to clear the helper's cached text, query
+snapshots and folder list before checking fresh mail. Refresh invalidates active
+continuations and message refs, so finish required queries first. Close the helper
+with `close` or EOF when mail work ends; no helper runs outside the agent session.
 
 Keep message bodies, contact lists and search results in the session rather than
 creating project reports or a permanent mail archive. Preserve concrete project
