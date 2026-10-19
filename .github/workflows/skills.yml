@@ -37,6 +37,9 @@ jobs:
             throw 'These tests must run in Windows PowerShell 5.1.'
           }
           ./tests/test_outlook_local.ps1
+      - name: Test Windows-local helper installation and execution policy
+        shell: powershell
+        run: python -m unittest discover -s tests -p test_outlook_local.py -v
 
   update:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'

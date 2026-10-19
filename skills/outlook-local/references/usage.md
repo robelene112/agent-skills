@@ -6,11 +6,25 @@ Requires Python 3 and classic Outlook already running in the same Windows user
 session. WSL must permit Windows executable interoperability. The wrapper uses
 `powershell.exe` on PATH, falling back to the known Windows PowerShell location
 `/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe`, and translates
-the bundled `.ps1` path with `wslpath -w`. Native Windows Python also works in
-principle but still needs runtime validation.
+the bundled `.ps1` path with `wslpath -w`. WSL installs the helper under
+`%LOCALAPPDATA%\agent-skills\outlook-local\<sha256>\outlook-local.ps1` before
+executing it with `-File`. Windows can classify a `\\wsl.localhost\...` path
+as remote and require a signature even under `RemoteSigned`; the helper is a
+local application file, so install it on the Windows side. Source and cached
+SHA-256 hashes must match. An unchanged version is reused, and a new source
+version gets a new cache directory. This cache contains code only, never mail,
+search terms or account settings. Native Windows Python uses its original
+script path and still needs live Outlook validation.
 
-No `ExecutionPolicy` override is used. If script execution is blocked, report
-that policy rather than changing it or switching invocation to evade it.
+No `ExecutionPolicy` override is used. The installer performs only filesystem
+operations through fixed PowerShell commands; mail code always runs from the
+local `.ps1`. Windows file copy preserves existing alternate streams, including
+download markers; it does not unblock files or strip signatures. A configured
+policy must permit the helper to run. The reported laptop uses `RemoteSigned`
+for CurrentUser after David enabled it; the original Windows default was
+`Restricted`. If the installed file is blocked, report the policy rather than
+changing it or switching to inline execution. Installation has a separate
+15-second timeout, before the Outlook operation starts.
 No `.Quit()`, process-name kill, automatic Outlook launch or mailbox export is
 performed. The timeout applies to the helper, not to the user's Outlook process.
 A forced termination or concurrent user changes can prevent final unread-state
@@ -118,6 +132,13 @@ establish live COM compatibility. Before marking this helper laptop-validated:
 Historical server-mail completeness, concurrent changes, forced interruption,
 attachments and calendar access remain unverified or outside this version.
 
+The first installed laptop probe was blocked by the default `Restricted` policy.
+After David enabled CurrentUser `RemoteSigned`, the WSL network path was still
+rejected as unsigned. This led to Windows-local installation. Windows CI checks
+the installer with synthetic files, including cache hashes, Unicode paths,
+execution under `RemoteSigned`, and preservation/enforcement of a download
+marker. The updated helper still needs its live laptop probe.
+
 ## Primary sources
 
 - [Classic versus new Outlook support](https://support.microsoft.com/en-us/outlook/getstarted/feature-comparison-between-new-outlook-and-classic-outlook)
@@ -128,3 +149,5 @@ attachments and calendar access remain unverified or outside this version.
 - [Unread property](https://learn.microsoft.com/en-us/office/vba/api/outlook.mailitem.unread)
 - [Save method](https://learn.microsoft.com/en-us/office/vba/api/outlook.mailitem.save)
 - [WSL interoperability](https://learn.microsoft.com/en-us/windows/wsl/filesystems)
+- [PowerShell policies and UNC paths](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies?view=powershell-5.1)
+- [Windows file copy preserves alternate streams](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-copyfileexw)

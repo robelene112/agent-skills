@@ -3,12 +3,72 @@
 
 import argparse
 import base64
+import hashlib
 import json
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import sys
+
+
+def stage_windows_script(powershell, source, digest):
+    """Install the WSL source as a Windows-local helper, keeping file metadata."""
+    request = base64.b64encode(json.dumps({'source': source, 'sha256': digest}).encode()).decode('ascii')
+    # Only installer operations run as commands. The mail helper itself always
+    # runs with -File, under the user's existing execution policy.
+    command = r'''
+$ErrorActionPreference = 'Stop'
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+try {
+    $request = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('__REQUEST__')) | ConvertFrom-Json
+    $local = [Environment]::GetFolderPath('LocalApplicationData')
+    if ($local -notmatch '^[A-Za-z]:\\') { throw 'LocalApplicationData must be on a local Windows drive.' }
+    if ((Get-FileHash -LiteralPath $request.source -Algorithm SHA256).Hash -ne $request.sha256) {
+        throw 'The source helper changed during installation. Run the wrapper again.'
+    }
+    $root = Join-Path $local ('agent-skills\outlook-local\' + $request.sha256)
+    [void][IO.Directory]::CreateDirectory($root)
+    $target = Join-Path $root 'outlook-local.ps1'
+    if (-not [IO.File]::Exists($target)) {
+        $temporary = Join-Path $root ([Guid]::NewGuid().ToString() + '.ps1')
+        try {
+            # Windows file copy retains alternate streams, including an existing
+            # Zone.Identifier. Do not strip download markers or unblock files.
+            [IO.File]::Copy($request.source, $temporary, $false)
+            if ((Get-FileHash -LiteralPath $temporary -Algorithm SHA256).Hash -ne $request.sha256) {
+                throw 'The copied helper does not match its source.'
+            }
+            try { [IO.File]::Move($temporary, $target) }
+            catch { if (-not [IO.File]::Exists($target)) { throw } }
+        } finally {
+            if ([IO.File]::Exists($temporary)) { [IO.File]::Delete($temporary) }
+        }
+    }
+    if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ne $request.sha256) {
+        throw 'The installed helper was modified. Inspect the local application cache.'
+    }
+    @{ok = $true; script = $target} | ConvertTo-Json -Compress
+} catch {
+    @{ok = $false; error = $_.Exception.Message} | ConvertTo-Json -Compress
+    exit 2
+}
+'''.replace('__REQUEST__', request)
+    result = subprocess.run(
+        [powershell, '-NoLogo', '-NoProfile', '-NonInteractive', '-Command', command],
+        capture_output=True, timeout=15,
+    )
+    try:
+        data = json.loads(result.stdout.decode('utf-8-sig'))
+        if result.returncode or data.get('ok') is not True:
+            raise RuntimeError(data.get('error', 'Windows helper installation failed.'))
+        target = data['script']
+        if not isinstance(target, str) or len(target) < 4 or target[1:3] != ':\\':
+            raise ValueError('Expected a local Windows helper path')
+        return target
+    except (ValueError, KeyError, TypeError, AttributeError, UnicodeError) as exc:
+        detail = result.stderr.decode('utf-8-sig', errors='replace').strip()
+        raise RuntimeError('Windows helper installation did not return a valid local path. ' + detail) from exc
 
 
 def invocation(action, options):
@@ -25,6 +85,8 @@ def invocation(action, options):
         ).stdout.strip()
     if not powershell or not Path(powershell).is_file():
         raise RuntimeError('Windows PowerShell was not found in this environment.')
+    if os.name != 'nt':
+        windows_script = stage_windows_script(powershell, windows_script, hashlib.sha256(script.read_bytes()).hexdigest())
     encoded = base64.b64encode(json.dumps(options, ensure_ascii=True).encode('utf-8')).decode('ascii')
     return [powershell, '-NoLogo', '-NoProfile', '-NonInteractive', '-File', windows_script,
             '-Action', action, '-QueryBase64', encoded]

@@ -44,6 +44,9 @@ python3 /path/to/outlook-local/scripts/outlook-local.py read --store-id STORE_ID
 
 The wrapper uses argument arrays and base64 JSON to pass data to Windows
 PowerShell, applies a client timeout and emits JSON without persisting mail.
+On WSL it installs a hash-verified Windows-local copy of the helper before
+running it with `-File`; the WSL network path is unsuitable for some
+`RemoteSigned` configurations. See the runtime notes for policy requirements.
 Probe once per session to verify the environment and discover stores/folders.
 Use `EntryID` **and** `StoreID` from search results to read a particular message.
 Search returns metadata; request body/HTML only when needed for David's question.
