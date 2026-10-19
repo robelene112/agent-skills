@@ -11,19 +11,24 @@ The user reported a working Windows/WSL COM route and verified the host on
 
 ## Activate on the laptop
 
-Use the public `agent-skills` checkout in the laptop's WSL home. Assuming it is
-at `~/agent-skills`, link the skill into the agent's personal skills directory:
+Run the shared setup/update script inside WSL. It recognizes WSL and installs
+the Outlook skill alongside the shared personal and Matt Pocock skills:
 
 ```bash
-mkdir -p ~/.agents/skills
-ln -s ~/agent-skills/skills/outlook-local ~/.agents/skills/outlook-local
+curl -fsSL https://raw.githubusercontent.com/robelene112/agent-skills/main/setup.py | python3 -
+```
+
+With classic Outlook open, test the local connection separately:
+
+```bash
 python3 ~/.agents/skills/outlook-local/scripts/outlook-local.py probe
 ```
 
-If the destination already exists, inspect it before changing anything. For
-Claude Code, the same source can be linked under `~/.claude/skills/`. Start a new
-agent session for skill discovery after installation. This skill does not need
-to be loaded for every task; its description selects Outlook mail requests.
+The installer preserves existing configuration and stops on skill conflicts.
+It also configures Claude Code when `~/.claude/` already exists or `--claude`
+is supplied. Start a new agent session to load the global instructions. The
+Outlook skill does not need to be loaded for every task; its description selects
+Outlook mail requests. Setup does not start Outlook or read mail.
 
 Keep this Windows/WSL capability off the VPS skill installation. The VPS can
 maintain its source, but cannot use the local Windows Outlook session through

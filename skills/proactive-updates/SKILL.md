@@ -21,6 +21,14 @@ beginning work, and read any updated instructions before continuing. Also check
 each task-related repository before starting work there. Reuse checks within the
 session; keep this targeted to the shared skills source and repositories in use.
 
+For this shared source, use `python3 <source-checkout>/setup.py` when available,
+after checking for concurrent work. It fetches a qualifying fast-forward and
+reconciles the installed skill links and managed global instructions, including
+new or removed upstream skills. It remembers the machine profile and preserves
+local configuration outside its managed block. A conflict stops the operation;
+report it rather than bypassing it with `--offline`. Read updated instructions
+before continuing. The script replaces a plain Git pull for this source only.
+
 Fetch from the repository's configured upstream remote and inspect the branch,
 working tree and ahead/behind state. Automatically run `git pull --ff-only`
 when the current branch has the expected upstream, is behind it, has no local

@@ -95,23 +95,58 @@ wordt niet in Git opgenomen.
 
 ## Regels gebruiken op een andere machine
 
-Koppel of kopieer `skills/global-communication/`, `skills/workspace-hygiene/`,
-`skills/github-issues/`, `skills/proactive-updates/` en
-`skills/development-preferences/` naar
-`~/.agents/skills/`. Plaats de inhoud van
-[de globale ingang](instructions/global/AGENTS.md) in Codex' `~/.codex/AGENTS.md`
-(of de `AGENTS.md` in je eigen `CODEX_HOME`). Behoud eventuele bestaande
-persoonlijke instructies. De ingang verwijst naar dezelfde skills op iedere
-machine. Codex ondersteunt persoonlijke skills en links naar skillmappen;
-zie [skills](https://learn.chatgpt.com/docs/build-skills) en
-[globale instructies](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
+Gebruik hetzelfde script voor installatie en updates op Arch Linux, Ubuntu en
+Windows 11 via WSL. Voer het op Windows uit **in WSL**. Vereisten zijn Python
+3.9 of nieuwer, Git en, voor dit downloadcommando, curl. Er is geen persoonlijke
+GitHub-login of sudo nodig voor de installatie zelf:
 
-Claude Code kan dezelfde ingang laden vanuit `~/.claude/CLAUDE.md`; zie
-[Claude-geheugen](https://code.claude.com/docs/en/memory). Andere agents moeten
-dezelfde regels vanuit hun eigen vaste instructie-ingang lezen. Start een nieuwe
-sessie om de nieuwe globale ingang te laden. Op de VPS zijn de vijf persoonlijke
-skills gekoppeld en ingangen ingesteld; de bestaande projectrouting blijft
-behouden.
+```bash
+curl -fsSL https://raw.githubusercontent.com/robelene112/agent-skills/main/setup.py | python3 -
+```
+
+Dit maakt standaard `~/agent-skills` aan. Voor latere updates kan hetzelfde
+commando worden gebruikt, of de lokale kopie:
+
+```bash
+python3 ~/agent-skills/setup.py
+```
+
+Het script haalt de bron bij met een fast-forward, koppelt de vijf persoonlijke
+skills en alle stabiele Matt Pocock-skills aan `~/.agents/skills/` en werkt de
+globale instructies bij. Nieuwe upstream skills krijgen een link; verwijderde
+skills verliezen alleen hun door het script beheerde link. Andere skills blijven
+staan. De Odoo-projectskill en het Saito-voorstel worden niet globaal geactiveerd.
+
+WSL wordt automatisch herkend en krijgt ook `outlook-local`. Gewoon Linux krijgt
+geen Outlook- of VPS-instructies. Kies op een VPS eenmalig het VPS-profiel om ook
+de opslagverwijzing te activeren; volgende uitvoeringen onthouden die keuze:
+
+```bash
+python3 ~/agent-skills/setup.py --environment vps
+```
+
+`--environment linux` of `--environment wsl` wijzigt een eerder gekozen profiel.
+`--repo-dir /pad/naar/agent-skills` kiest een andere broncheckout. Een bestaande
+lokale scriptkopie gebruikt zijn eigen checkout. `--offline` past alleen een
+bestaande bron toe zonder Git-update, bijvoorbeeld bij bewust lokaal onderhoud;
+gebruik deze optie niet om een updateconflict stilzwijgend te omzeilen.
+
+Bestaande instructies blijven buiten een herkenbaar beheerd blok behouden.
+Codex' `CODEX_HOME` en een actief `AGENTS.override.md` worden gerespecteerd.
+Skillconflicten worden vooraf gemeld zonder bestaande skills of instructies te
+overschrijven. Een vuile broncheckout, eigen commits, afwijkende upstream of
+mislukte fetch stopt de update. Het script bewaart lokale installatiestatus en
+een proceslock onder `${XDG_STATE_HOME:-~/.local/state}/agent-skills/`. De lock
+voorkomt twee gelijktijdige uitvoeringen van dit script; voer het niet uit
+terwijl een andere agent de broncheckout bewerkt.
+
+Als `~/.claude/` bestaat, configureert het script ook Claude Code vanuit dezelfde
+bron. `--claude` activeert dat ook bij een eerste installatie. Andere agents
+moeten hun eigen vaste instructie-ingang gebruiken. Start na installatie een
+nieuwe agentsessie om de globale instructies te laden. Zie de officiële uitleg
+over [Codex-skills](https://learn.chatgpt.com/docs/build-skills),
+[globale Codex-instructies](https://learn.chatgpt.com/docs/agent-configuration/agents-md)
+en [Claude-geheugen](https://code.claude.com/docs/en/memory).
 
 De Outlook-skill wordt afzonderlijk geactiveerd in de Windows/WSL-omgeving met
 klassiek Outlook. Zie [lokale Outlook-installatie](environments/windows-wsl/OUTLOOK.md).
@@ -121,13 +156,13 @@ ongelezenstatus en herstelt die alleen wanneer een oorspronkelijk ongelezen
 bericht tijdens het lezen toch als gelezen is gemarkeerd. Gewone leesacties
 slaan niets op. De VPS-installatie krijgt deze lokale Windows-capaciteit niet.
 
-Bij links naar deze bronrepository werkt een `git pull --ff-only` de skillinhoud
-bij. Een gekopieerde skill moet na een bronupdate opnieuw gekopieerd worden.
-Neem een gewijzigde globale ingang ook over in je persoonlijke instructiebestand.
-GitHub haalt de Matt Pocock-updates automatisch op; agents werken geschikte
-lokale checkouts bij volgens de skill. Dit gebeurt tijdens een agentsessie;
-er is geen lokale timer ingericht. De VPS-notitie hoort niet op de laptops
-geactiveerd te worden.
+GitHub haalt de Matt Pocock-updates automatisch op. Agents gebruiken bij
+sessiestart het setup/update-script volgens `proactive-updates`, zodat naast
+gewijzigde skillinhoud ook nieuwe links en globale instructies worden bijgewerkt.
+Dit gebeurt tijdens een agentsessie; er is geen lokale timer ingericht. De
+VPS-notitie hoort niet op de laptops geactiveerd te worden. Een eventuele oude
+gekopieerde skill vraagt eenmalige beoordeling voordat de installer haar door
+een gedeelde link kan vervangen.
 
 ## Matt Pocock bijwerken
 
