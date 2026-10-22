@@ -1,6 +1,6 @@
 ---
 name: development-preferences
-description: Apply David's development preferences when planning, implementing, or reviewing software. Prioritize user experience over developer convenience, build polished and consistent interfaces, and avoid cybersecurity work requiring restricted access. Applies across projects and machines.
+description: Apply David's preferences when planning, implementing, or reviewing software. Prioritize UX over developer convenience, host prototypes on his VPS and domains instead of OpenAI Sites, build polished consistent interfaces, and avoid gated cybersecurity work. Applies across projects and machines.
 ---
 
 # Development Preferences
@@ -79,3 +79,18 @@ them. When a preview is available, exercise the default path and main user tasks
 checking unnecessary steps, clarity and feedback alongside the rendered result
 at relevant screen sizes and interaction states before calling the UI finished.
 Keep the change focused on the interface being worked on.
+
+## Rule 3: host prototypes on David's own VPS and domains
+
+Host prototypes on David's own VPS and make them available through domains or
+subdomains he owns. This applies across development machines: a laptop session
+uses the project's VPS deployment route when making a prototype available.
+
+Never use OpenAI/ChatGPT Sites or equivalent OpenAI-hosted website/prototype
+platforms. Do not invoke Sites skills, plugins or tools to create, remix, preview,
+host or publish a website or prototype. Pointing an owned domain at Sites does
+not satisfy the requirement to host on David's own VPS.
+
+Follow the project's maintained deployment instructions and existing VPS routing
+and reverse-proxy configuration. This rule specifies the hosting destination;
+follow the task's existing deployment permissions and scope.
