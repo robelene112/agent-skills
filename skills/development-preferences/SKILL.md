@@ -66,18 +66,39 @@ nodes and CSS-generated content. Use SVG icons, shapes drawn with CSS or custom
 vector assets that fit the interface. Reuse or refine suitable project icon
 components and keep their proportions, stroke weight and alignment consistent.
 
-Add short, fluid animations to interactions and state changes, especially when
-expanding or collapsing content. Reuse the application's motion conventions;
-where none exist, define consistent durations and easing alongside the visual
-design. Start around 150-200 ms for small transitions and adjust to the component.
-Keep the interface responsive and avoid slow animations, artificial waits or
-blocking interaction until a transition finishes. Respect reduced-motion
-preferences with minimal or no motion.
+Give every user interaction immediate, clear visual feedback. Communicate what
+the action did and whether it succeeded. For example, show "Copied" in the UI's
+language only after the clipboard operation actually succeeds.
+
+Animate UI components opening, closing, appearing, disappearing or replacing
+one another with short, fluid transitions. This also applies to changes without
+a click, such as loaded content replacing a loading indicator. An animation of
+the result satisfies the interaction's animation requirement: an animated
+dropdown does not also require a separate animation on its trigger button.
+
+Animate checkboxes checking and unchecking, including rapid repeated selection.
+Keep this motion subtle and local to the checkmark, with the row staying in
+place and the next interaction immediately available.
+
+Apply these exceptions:
+
+- Text fields show their focus state immediately, without a focus animation.
+- Animation is optional for continuously updating data values, such as dashboard
+  counters. This exception does not remove the checkbox animation requirement.
+- Respect the user's reduced-motion preference by limiting or omitting motion
+  while keeping the visual feedback clear.
+
+Reuse the application's motion conventions; where none exist, define consistent
+durations and easing alongside the visual design. Start around 150-200 ms for
+small transitions and adjust to the component. Animations must remain short and
+interruptible. Keep the interface responsive without artificial waits or
+blocking input until a transition finishes.
 
 Preserve accessible controls, keyboard operation and focus states while styling
 them. When a preview is available, exercise the default path and main user tasks,
 checking unnecessary steps, clarity and feedback alongside the rendered result
-at relevant screen sizes and interaction states before calling the UI finished.
+at relevant screen sizes and interaction states. Verify the transitions and
+exceptions above before calling the UI finished.
 Keep the change focused on the interface being worked on.
 
 ## Rule 3: host prototypes on David's own VPS and domains
