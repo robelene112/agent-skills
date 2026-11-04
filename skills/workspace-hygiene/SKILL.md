@@ -1,6 +1,6 @@
 ---
 name: workspace-hygiene
-description: Prevent unnecessary files and unsolicited research reports across David's tasks, domains, and machines. Keep working material in the session or temporary storage and project repositories focused on requested deliverables and maintained project knowledge.
+description: Prevent unnecessary files and unsolicited research reports across David's tasks and machines. Keep temporary work in the session or external temporary storage, and personal consulting notes and agent working material outside customer Git repositories.
 ---
 
 # Workspace Hygiene
@@ -25,6 +25,40 @@ external cache when appropriate.
 Do not create project-local scratch folders, research reports, plans, summaries
 or handoffs solely to organize your own work. Adding them to `.gitignore` does
 not make them necessary or resolve the clutter.
+
+## Consulting workspaces and customer repositories
+
+David is an ERP consultant working with Odoo. On his work laptop he keeps a
+directory per customer or project, containing his personal notes and often one
+or more nested Git repositories with the customer's Odoo code. In this layout,
+the enclosing customer/project directory is his own workspace outside Git; the
+nested repositories contain customer project material that may be shared or
+delivered to the customer. Keep those two purposes separate. Apply this boundary
+wherever that consulting work is performed, not only on the work laptop.
+
+Determine the enclosing workspace and actual repository roots from the existing
+layout, Git metadata and project instructions before choosing a file location.
+The current working directory alone does not establish that boundary. Account
+for worktrees and resolved symlinks; a repository's `.git` may be a file.
+
+- Put useful personal consultant notes in the enclosing customer/project
+  workspace, following its existing organization and reusing existing notes.
+  Personal meeting notes, drafts, agent memory, handoffs and private agent
+  instructions belong outside the customer repositories.
+- Keep temporary research, scratch files and one-off investigation scripts in
+  the session or external temporary storage and clean them up. Permission to
+  write in the enclosing workspace does not make unnecessary persistence useful.
+- Make authorized customer code, test, configuration and maintained technical
+  documentation changes in the appropriate repository. Knowledge that belongs
+  with the customer's delivered code can be documented there; knowledge for
+  David's personal consulting work or the agent's own working context stays in
+  the enclosing workspace when it merits keeping.
+
+Choose autonomously by purpose, audience and ownership. A file's extension or
+ignored status does not make personal material appropriate for a customer
+repository. Do not change the customer's `.gitignore` to accommodate personal
+notes or agent scratch files. Ask only when a consequential ownership or
+destination choice cannot be resolved from the task and existing context.
 
 ## Keep useful project files intentional
 

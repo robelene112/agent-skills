@@ -9,7 +9,7 @@ kopie van Matt Pococks volledige stabiele skillset:
 | Saito-ontwikkeling | [saito-dev](skills/saito-dev/SKILL.md) | Herzien voorstel, nog niet geactiveerd |
 | Odoo 20-frameworkkennis | [odoo-20](skills/odoo-20/SKILL.md) | Geïnstalleerd in het Odoo BI-project |
 | Globale communicatieregels | [global-communication](skills/global-communication/SKILL.md) | Geen em dashes; vragen in de chat; tijdens een grill één vraag per keer |
-| Bestanden en werkaantekeningen | [workspace-hygiene](skills/workspace-hygiene/SKILL.md) | Intern onderzoek blijft in de sessie of tijdelijke opslag; blijvende bestanden hebben een duidelijk doel |
+| Bestanden en werkaantekeningen | [workspace-hygiene](skills/workspace-hygiene/SKILL.md) | Tijdelijk werk blijft tijdelijk; persoonlijke consultantnotities blijven buiten Git-repositories van klanten |
 | Tracker voor ontwikkeling | [github-issues](skills/github-issues/SKILL.md) | Nieuwe tickets en trackerspecificaties zijn GitHub Issues |
 | Programmeerregels | [development-preferences](skills/development-preferences/SKILL.md) | UX boven developer experience; verzorgde UI; prototypes op eigen VPS en domeinen, geen OpenAI Sites; geen cyberwerk met beperkte toegang |
 | Lokale Outlook-mail | [outlook-local](skills/outlook-local/SKILL.md) | Windows/WSL met klassiek Outlook; zoeken en volledig lezen live getest, ongelezenstatus bleef behouden |
@@ -53,6 +53,14 @@ waaruit David kan kiezen. Controleer aan het einde welke bestanden zijn toegevoe
 en of die bij het gevraagde resultaat horen. Een adviesvraag geeft op zichzelf
 geen opdracht om bestanden te wijzigen of wijzigingen te publiceren. De regel
 vraagt geen opschoning van bestaande bestanden.
+
+Bij consultancywerk is de bovenliggende klant-/projectmap Davids eigen werkruimte
+met persoonlijke aantekeningen. Onderliggende Git-repositories bevatten klantcode,
+bijvoorbeeld Odoo-addons. De agent herkent die grenzen zelf: nuttige persoonlijke
+notities blijven in de eigen werkruimte, tijdelijk werk in de sessie of tijdelijke
+opslag, en gevraagde code, tests en bijbehorende klantdocumentatie in de juiste
+repository. De reden is dat klantrepositories gedeeld of opgeleverd kunnen worden.
+Deze afspraak geldt voor dat werk op iedere machine.
 
 De programmeerregels gelden voor softwareontwikkeling in alle projecten en
 omgevingen. Agents ondernemen geen cyberwerk waarvoor Daybreak of vergelijkbare
